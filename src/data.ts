@@ -147,8 +147,8 @@ export const TEAMS: TeamStats[] = [
   },
 
   {
-    id: 'AFG',
-    name: 'Afghanistan',
+    id: 'NED',
+    name: 'Netherlands',
     flag: '',
     played: 0,
     won: 0,

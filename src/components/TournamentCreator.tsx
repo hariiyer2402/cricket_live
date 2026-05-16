@@ -10,7 +10,7 @@ const teamsList = [
 'SL',
 'BAN',
 'WI',
-'AFG',
+'NED',
 ];
 
 interface Props {
