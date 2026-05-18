@@ -8,6 +8,7 @@ interface Player {
   runs: number;
   wickets: number;
   matches: number;
+  lastUpdated: number;
 }
 
 const teams = [
@@ -23,7 +24,6 @@ const teams = [
   'NED',
 ];
 
-const LS_KEY = 'player_stats_data';
 
 export default function PlayerStats() {
 
@@ -37,47 +37,159 @@ export default function PlayerStats() {
 
   useEffect(() => {
 
-    const saved =
-      localStorage.getItem(LS_KEY);
+  const loadPlayers = () => {
 
-    if (saved) {
-      setPlayers(JSON.parse(saved));
-    }
+    const savedPlayers =
+      JSON.parse(
+        localStorage.getItem(
+          'player_stats_data'
+        ) || '[]'
+      );
 
-  }, []);
+    setPlayers(savedPlayers);
+
+  };
+
+  loadPlayers();
+
+  const interval =
+    setInterval(loadPlayers, 1000);
+
+  return () => clearInterval(interval);
+
+}, []);
 
   useEffect(() => {
 
-    localStorage.setItem(
-      LS_KEY,
-      JSON.stringify(players)
+  const syncPlayers = () => {
+
+    const savedPlayers =
+      JSON.parse(
+        localStorage.getItem(
+          'player_stats_data'
+        ) || '[]'
+      );
+
+    setPlayers(savedPlayers);
+
+  };
+
+  window.addEventListener(
+    'storage',
+    syncPlayers
+  );
+
+  return () => {
+
+    window.removeEventListener(
+      'storage',
+      syncPlayers
     );
 
-  }, [players]);
+  };
+
+}, []);
 
   const addPlayer = () => {
 
-    if (!name.trim()) return;
+  if (!name.trim()) return;
 
-    const newPlayer: Player = {
-      id: Date.now(),
-      name,
-      team,
-      runs: Number(runs) || 0,
-      wickets: Number(wickets) || 0,
-      matches: Number(matches) || 0,
-    };
+  let updatedPlayers: Player[] = [];
 
-    setPlayers(prev => [
-      ...prev,
-      newPlayer,
-    ]);
+  setPlayers((prevPlayers) => {
 
-    setName('');
-    setRuns('');
-    setWickets('');
-    setMatches('');
-  };
+    const existingPlayer = prevPlayers.find(
+      (player) =>
+        player.name.toLowerCase() ===
+          name.trim().toLowerCase() &&
+        player.team === team
+    );
+
+    if (existingPlayer) {
+
+      updatedPlayers = prevPlayers.map((player) =>
+
+        player.name.toLowerCase() ===
+          name.trim().toLowerCase() &&
+        player.team === team
+
+          ? {
+              ...player,
+
+              runs:
+                player.runs +
+                (Number(runs) || 0),
+
+              wickets:
+                player.wickets +
+                (Number(wickets) || 0),
+
+              matches:
+                player.matches +
+                (Number(matches) || 0),
+
+              lastUpdated: Date.now(),
+            }
+
+          : player
+      );
+
+    } else {
+
+      updatedPlayers = [
+
+        ...prevPlayers,
+
+        {
+          id: Date.now(),
+
+          name: name.trim(),
+
+          team,
+
+          runs: Number(runs) || 0,
+
+          wickets: Number(wickets) || 0,
+
+          matches: Number(matches) || 0,
+
+          lastUpdated: Date.now(),
+        },
+
+      ];
+
+    }
+
+    // SORTING
+
+    updatedPlayers.sort((a, b) => {
+
+      // Orange cap priority first
+      if (b.runs !== a.runs) {
+        return b.runs - a.runs;
+      }
+
+      // Then wickets
+      return b.wickets - a.wickets;
+    });
+
+    // SAVE TO LOCAL STORAGE
+
+    localStorage.setItem(
+      'player_stats_data',
+      JSON.stringify(updatedPlayers)
+    );
+
+    return updatedPlayers;
+
+  });
+
+  setName('');
+  setRuns('');
+  setWickets('');
+  setMatches('');
+
+};
 
   const deletePlayer = (
     id: number
@@ -94,16 +206,30 @@ export default function PlayerStats() {
   // ORANGE CAP
 
   const orangeCap = [...players]
-    .filter(player => player.runs > 0)
-    .sort((a, b) => b.runs - a.runs)
-    .slice(0, 10);
+  .filter(player => player.runs > 0)
+  .sort((a, b) => {
+
+    if (b.runs !== a.runs) {
+      return b.runs - a.runs;
+    }
+
+    return a.matches - b.matches;
+  })
+  .slice(0, 10);
 
   // PURPLE CAP
 
-  const purpleCap = [...players]
-    .filter(player => player.wickets > 0)
-    .sort((a, b) => b.wickets - a.wickets)
-    .slice(0, 10);
+const purpleCap = [...players]
+  .filter(player => player.wickets > 0)
+  .sort((a, b) => {
+
+    if (b.wickets !== a.wickets) {
+      return b.wickets - a.wickets;
+    }
+
+    return a.matches - b.matches;
+  })
+  .slice(0, 10);
 
   return (
 

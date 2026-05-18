@@ -16,12 +16,19 @@ export interface TeamStats {
 
 export interface MatchResult {
   id: string;
+
   team1: string;
   team2: string;
+
   winner: string | 'nr';
+
   team1Runs: number;
+  team1Wickets: number;
   team1Overs: number;
+
   team2Runs: number;
+  team2Wickets: number;
   team2Overs: number;
+
   date: string;
 }

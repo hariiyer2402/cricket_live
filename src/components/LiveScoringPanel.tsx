@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface Props {
   matchId: string;
@@ -7,6 +7,7 @@ interface Props {
 }
 
 export default function LiveScoringPanel({
+  matchId,
   team1,
   team2,
 }: Props) {
@@ -85,6 +86,112 @@ export default function LiveScoringPanel({
   const [team2Wickets, setTeam2Wickets] =
     useState('');
 
+  // MATCH STATUS
+
+  const [matchCompleted, setMatchCompleted] =
+    useState(false);
+
+  const [loaded, setLoaded] =
+  useState(false);
+
+  const [statsSaved, setStatsSaved] =
+  useState(false);
+
+  // LOAD SAVED MATCH
+
+  useEffect(() => {
+
+  // RESET OLD MATCH STATE
+
+  setBatters([]);
+  setBowlers([]);
+
+  setTeam2Batters([]);
+  setTeam2Bowlers([]);
+
+  setMatchCompleted(false);
+
+  setStatsSaved(false);
+
+  setLoaded(false);
+
+  // LOAD CURRENT MATCH
+
+  const savedMatch =
+    localStorage.getItem(
+      `match_${matchId}`
+    );
+
+  if (savedMatch) {
+
+    const parsed =
+      JSON.parse(savedMatch);
+
+    setBatters(
+      parsed.batters || []
+    );
+
+    setBowlers(
+      parsed.bowlers || []
+    );
+
+    setTeam2Batters(
+      parsed.team2Batters || []
+    );
+
+    setTeam2Bowlers(
+      parsed.team2Bowlers || []
+    );
+
+    setMatchCompleted(
+      parsed.matchCompleted || false
+    );
+
+    setStatsSaved(
+      parsed.statsSaved || false
+    );
+
+  }
+
+  setLoaded(true);
+
+}, [matchId]);
+
+  // SAVE MATCH
+
+  useEffect(() => {
+
+  if (!loaded) return;
+
+  localStorage.setItem(
+
+    `match_${matchId}`,
+
+    JSON.stringify({
+
+      batters,
+      bowlers,
+      team2Batters,
+      team2Bowlers,
+      matchCompleted,
+      statsSaved,
+
+    })
+
+  );
+
+}, [
+
+  loaded,
+  batters,
+  bowlers,
+  team2Batters,
+  team2Bowlers,
+  matchCompleted,
+  matchId,
+
+]);
+
   // ADD TEAM 1 BATTER
 
   const addBatter = () => {
@@ -103,7 +210,9 @@ export default function LiveScoringPanel({
       ).toFixed(2);
 
     setBatters(prev => [
+
       ...prev,
+
       {
         name: batterName,
         runs,
@@ -112,6 +221,7 @@ export default function LiveScoringPanel({
         sixes,
         strikeRate,
       },
+
     ]);
 
     setBatterName('');
@@ -140,7 +250,9 @@ export default function LiveScoringPanel({
       ).toFixed(2);
 
     setTeam2Batters(prev => [
+
       ...prev,
+
       {
         name: team2BatterName,
         runs: team2Runs,
@@ -149,6 +261,7 @@ export default function LiveScoringPanel({
         sixes: team2Sixes,
         strikeRate,
       },
+
     ]);
 
     setTeam2BatterName('');
@@ -169,22 +282,98 @@ export default function LiveScoringPanel({
       !runsGiven
     ) return;
 
-    const economy =
-      (
-        Number(runsGiven) /
-        Number(overs)
-      ).toFixed(2);
+    setBowlers(prev => {
 
-    setBowlers(prev => [
-      ...prev,
-      {
-        name: bowlerName,
-        overs,
-        runsGiven,
-        wickets,
-        economy,
-      },
-    ]);
+      const existingBowlerIndex =
+        prev.findIndex(
+          bowler =>
+            bowler.name
+              .trim()
+              .toLowerCase() ===
+            bowlerName
+              .trim()
+              .toLowerCase()
+        );
+
+      if (
+        existingBowlerIndex !== -1
+      ) {
+
+        const updatedBowlers =
+          [...prev];
+
+        const existingBowler =
+          updatedBowlers[
+            existingBowlerIndex
+          ];
+
+        const updatedOvers =
+          Number(
+            existingBowler.overs
+          ) + Number(overs);
+
+        const updatedRuns =
+          Number(
+            existingBowler.runsGiven
+          ) + Number(runsGiven);
+
+        const updatedWickets =
+          Number(
+            existingBowler.wickets
+          ) + Number(wickets);
+
+        updatedBowlers[
+          existingBowlerIndex
+        ] = {
+
+          ...existingBowler,
+
+          overs: updatedOvers,
+
+          runsGiven: updatedRuns,
+
+          wickets: updatedWickets,
+
+          economy:
+            (
+              updatedRuns /
+              updatedOvers
+            ).toFixed(2),
+
+        };
+
+        return updatedBowlers;
+
+      }
+
+      return [
+
+        ...prev,
+
+        {
+          name:
+            bowlerName.trim(),
+
+          overs:
+            Number(overs),
+
+          runsGiven:
+            Number(runsGiven),
+
+          wickets:
+            Number(wickets),
+
+          economy:
+            (
+              Number(runsGiven) /
+              Number(overs)
+            ).toFixed(2),
+
+        },
+
+      ];
+
+    });
 
     setBowlerName('');
     setOvers('');
@@ -203,22 +392,98 @@ export default function LiveScoringPanel({
       !team2RunsGiven
     ) return;
 
-    const economy =
-      (
-        Number(team2RunsGiven) /
-        Number(team2Overs)
-      ).toFixed(2);
+    setTeam2Bowlers(prev => {
 
-    setTeam2Bowlers(prev => [
-      ...prev,
-      {
-        name: team2BowlerName,
-        overs: team2Overs,
-        runsGiven: team2RunsGiven,
-        wickets: team2Wickets,
-        economy,
-      },
-    ]);
+      const existingBowlerIndex =
+        prev.findIndex(
+          bowler =>
+            bowler.name
+              .trim()
+              .toLowerCase() ===
+            team2BowlerName
+              .trim()
+              .toLowerCase()
+        );
+
+      if (
+        existingBowlerIndex !== -1
+      ) {
+
+        const updatedBowlers =
+          [...prev];
+
+        const existingBowler =
+          updatedBowlers[
+            existingBowlerIndex
+          ];
+
+        const updatedOvers =
+          Number(
+            existingBowler.overs
+          ) + Number(team2Overs);
+
+        const updatedRuns =
+          Number(
+            existingBowler.runsGiven
+          ) + Number(team2RunsGiven);
+
+        const updatedWickets =
+          Number(
+            existingBowler.wickets
+          ) + Number(team2Wickets);
+
+        updatedBowlers[
+          existingBowlerIndex
+        ] = {
+
+          ...existingBowler,
+
+          overs: updatedOvers,
+
+          runsGiven: updatedRuns,
+
+          wickets: updatedWickets,
+
+          economy:
+            (
+              updatedRuns /
+              updatedOvers
+            ).toFixed(2),
+
+        };
+
+        return updatedBowlers;
+
+      }
+
+      return [
+
+        ...prev,
+
+        {
+          name:
+            team2BowlerName.trim(),
+
+          overs:
+            Number(team2Overs),
+
+          runsGiven:
+            Number(team2RunsGiven),
+
+          wickets:
+            Number(team2Wickets),
+
+          economy:
+            (
+              Number(team2RunsGiven) /
+              Number(team2Overs)
+            ).toFixed(2),
+
+        },
+
+      ];
+
+    });
 
     setTeam2BowlerName('');
     setTeam2Overs('');
@@ -229,614 +494,769 @@ export default function LiveScoringPanel({
 
   return (
 
-    <div className="max-w-7xl mx-auto px-4 py-4 space-y-6">
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
 
-      {/* MAIN GRID */}
+      {/* TEAM 1 BATTING */}
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-hidden">
 
-        {/* LEFT COLUMN */}
+        <div className="p-6 border-b border-[#223554]">
 
-        <div className="space-y-6">
-
-          {/* TEAM 1 BATTING */}
-
-          <div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-hidden">
-
-            <div className="px-6 py-4 bg-[#16263D] border-b border-[#223554]">
-
-              <h2 className="text-2xl font-black text-white">
-
-                {team1} Batting
-
-              </h2>
-
-            </div>
-
-            {/* KEEP REST OF YOUR EXISTING JSX BELOW */}
-
-            <div className="p-6 space-y-4">
-
-              <input
-                type="text"
-                placeholder={`${team1} Batter Name`}
-                value={batterName}
-                onChange={(e) =>
-                  setBatterName(
-                    e.target.value
-                  )
-                }
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-
-                <input
-                  type="number"
-                  placeholder="Runs"
-                  value={runs}
-                  onChange={(e) =>
-                    setRuns(
-                      e.target.value
-                    )
-                  }
-                />
-
-                <input
-                  type="number"
-                  placeholder="Balls"
-                  value={balls}
-                  onChange={(e) =>
-                    setBalls(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-
-                <input
-                  type="number"
-                  placeholder="4s"
-                  value={fours}
-                  onChange={(e) =>
-                    setFours(
-                      e.target.value
-                    )
-                  }
-                />
-
-                <input
-                  type="number"
-                  placeholder="6s"
-                  value={sixes}
-                  onChange={(e) =>
-                    setSixes(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
-
-              <button
-                onClick={addBatter}
-                className="primary-btn w-full py-3 rounded-xl"
-              >
-
-                Add Batter
-
-              </button>
-
-              <div className="overflow-x-auto mt-5">
-
-                <table className="w-full">
-
-                  <thead>
-
-                    <tr className="text-slate-400 text-sm border-b border-[#223554]">
-
-                      <th className="py-3 text-left">
-                        Batter
-                      </th>
-
-                      <th>
-                        R
-                      </th>
-
-                      <th>
-                        B
-                      </th>
-
-                      <th>
-                        4s
-                      </th>
-
-                      <th>
-                        6s
-                      </th>
-
-                      <th>
-                        SR
-                      </th>
-
-                    </tr>
-
-                  </thead>
-
-                  <tbody>
-
-                    {batters.map((batter, index) => (
-
-                      <tr
-                        key={index}
-                        className="border-b border-[#223554]/40 text-center"
-                      >
-
-                        <td className="py-3 text-left text-white font-semibold">
-                          {batter.name}
-                        </td>
-
-                        <td>{batter.runs}</td>
-
-                        <td>{batter.balls}</td>
-
-                        <td>{batter.fours}</td>
-
-                        <td>{batter.sixes}</td>
-
-                        <td className="text-cyan-400 font-bold">
-                          {batter.strikeRate}
-                        </td>
-
-                      </tr>
-
-                    ))}
-
-                  </tbody>
-
-                </table>
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* TEAM 1 BOWLING */}
-
-          <div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-hidden">
-
-            <div className="px-6 py-4 bg-[#16263D] border-b border-[#223554]">
-
-              <h2 className="text-2xl font-black text-white">
-
-                {team1} Bowling
-
-              </h2>
-
-            </div>
-
-            <div className="p-6 space-y-4">
-
-              <input
-                type="text"
-                placeholder={`${team1} Bowler Name`}
-                value={bowlerName}
-                onChange={(e) =>
-                  setBowlerName(
-                    e.target.value
-                  )
-                }
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-
-                <input
-                  type="number"
-                  placeholder="Overs"
-                  value={overs}
-                  onChange={(e) =>
-                    setOvers(
-                      e.target.value
-                    )
-                  }
-                />
-
-                <input
-                  type="number"
-                  placeholder="Runs"
-                  value={runsGiven}
-                  onChange={(e) =>
-                    setRunsGiven(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
-
-              <input
-                type="number"
-                placeholder="Wickets"
-                value={wickets}
-                onChange={(e) =>
-                  setWickets(
-                    e.target.value
-                  )
-                }
-              />
-
-              <button
-                onClick={addBowler}
-                className="secondary-btn w-full py-3 rounded-xl"
-              >
-
-                Add Bowler
-
-              </button>
-
-              <div className="overflow-x-auto mt-5">
-
-                <table className="w-full">
-
-                  <thead>
-
-                    <tr className="text-slate-400 text-sm border-b border-[#223554]">
-
-                      <th className="py-3 text-left">
-                        Bowler
-                      </th>
-
-                      <th>O</th>
-
-                      <th>R</th>
-
-                      <th>W</th>
-
-                      <th>Econ</th>
-
-                    </tr>
-
-                  </thead>
-
-                  <tbody>
-
-                    {bowlers.map((bowler, index) => (
-
-                      <tr
-                        key={index}
-                        className="border-b border-[#223554]/40 text-center"
-                      >
-
-                        <td className="py-3 text-left text-white font-semibold">
-                          {bowler.name}
-                        </td>
-
-                        <td>{bowler.overs}</td>
-
-                        <td>{bowler.runsGiven}</td>
-
-                        <td>{bowler.wickets}</td>
-
-                        <td className="text-emerald-400 font-bold">
-                          {bowler.economy}
-                        </td>
-
-                      </tr>
-
-                    ))}
-
-                  </tbody>
-
-                </table>
-
-              </div>
-
-            </div>
-
-          </div>
+          <h2 className="text-2xl font-black text-white">
+            {team1} Batting
+          </h2>
 
         </div>
 
-        {/* RIGHT COLUMN */}
+        <div className="p-6 space-y-4">
 
-        <div className="space-y-6">
+          <input
+            type="text"
+            placeholder={`${team1} Batter Name`}
+            value={batterName}
+            onChange={(e) =>
+              setBatterName(
+                e.target.value
+              )
+            }
+          />
 
-          {/* TEAM 2 BATTING */}
+          <div className="grid grid-cols-2 gap-4">
 
-          <div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-hidden">
+            <input
+              type="number"
+              placeholder="Runs"
+              value={runs}
+              onChange={(e) =>
+                setRuns(
+                  e.target.value
+                )
+              }
+            />
 
-            <div className="px-6 py-4 bg-[#16263D] border-b border-[#223554]">
-
-              <h2 className="text-2xl font-black text-white">
-
-                {team2} Batting
-
-              </h2>
-
-            </div>
-
-            <div className="p-6 space-y-4">
-
-              <input
-                type="text"
-                placeholder={`${team2} Batter Name`}
-                value={team2BatterName}
-                onChange={(e) =>
-                  setTeam2BatterName(
-                    e.target.value
-                  )
-                }
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-
-                <input
-                  type="number"
-                  placeholder="Runs"
-                  value={team2Runs}
-                  onChange={(e) =>
-                    setTeam2Runs(
-                      e.target.value
-                    )
-                  }
-                />
-
-                <input
-                  type="number"
-                  placeholder="Balls"
-                  value={team2Balls}
-                  onChange={(e) =>
-                    setTeam2Balls(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-
-                <input
-                  type="number"
-                  placeholder="4s"
-                  value={team2Fours}
-                  onChange={(e) =>
-                    setTeam2Fours(
-                      e.target.value
-                    )
-                  }
-                />
-
-                <input
-                  type="number"
-                  placeholder="6s"
-                  value={team2Sixes}
-                  onChange={(e) =>
-                    setTeam2Sixes(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
-
-              <button
-                onClick={addTeam2Batter}
-                className="primary-btn w-full py-3 rounded-xl"
-              >
-
-                Add Batter
-
-              </button>
-
-              <div className="overflow-x-auto mt-5">
-
-                <table className="w-full">
-
-                  <thead>
-
-                    <tr className="text-slate-400 text-sm border-b border-[#223554]">
-
-                      <th className="py-3 text-left">
-                        Batter
-                      </th>
-
-                      <th>R</th>
-
-                      <th>B</th>
-
-                      <th>4s</th>
-
-                      <th>6s</th>
-
-                      <th>SR</th>
-
-                    </tr>
-
-                  </thead>
-
-                  <tbody>
-
-                    {team2Batters.map((batter, index) => (
-
-                      <tr
-                        key={index}
-                        className="border-b border-[#223554]/40 text-center"
-                      >
-
-                        <td className="py-3 text-left text-white font-semibold">
-                          {batter.name}
-                        </td>
-
-                        <td>{batter.runs}</td>
-
-                        <td>{batter.balls}</td>
-
-                        <td>{batter.fours}</td>
-
-                        <td>{batter.sixes}</td>
-
-                        <td className="text-cyan-400 font-bold">
-                          {batter.strikeRate}
-                        </td>
-
-                      </tr>
-
-                    ))}
-
-                  </tbody>
-
-                </table>
-
-              </div>
-
-            </div>
+            <input
+              type="number"
+              placeholder="Balls"
+              value={balls}
+              onChange={(e) =>
+                setBalls(
+                  e.target.value
+                )
+              }
+            />
 
           </div>
 
-          {/* TEAM 2 BOWLING */}
+          <div className="grid grid-cols-2 gap-4">
 
-          <div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-hidden">
+            <input
+              type="number"
+              placeholder="4s"
+              value={fours}
+              onChange={(e) =>
+                setFours(
+                  e.target.value
+                )
+              }
+            />
 
-            <div className="px-6 py-4 bg-[#16263D] border-b border-[#223554]">
-
-              <h2 className="text-2xl font-black text-white">
-
-                {team2} Bowling
-
-              </h2>
-
-            </div>
-
-            <div className="p-6 space-y-4">
-
-              <input
-                type="text"
-                placeholder={`${team2} Bowler Name`}
-                value={team2BowlerName}
-                onChange={(e) =>
-                  setTeam2BowlerName(
-                    e.target.value
-                  )
-                }
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-
-                <input
-                  type="number"
-                  placeholder="Overs"
-                  value={team2Overs}
-                  onChange={(e) =>
-                    setTeam2Overs(
-                      e.target.value
-                    )
-                  }
-                />
-
-                <input
-                  type="number"
-                  placeholder="Runs"
-                  value={team2RunsGiven}
-                  onChange={(e) =>
-                    setTeam2RunsGiven(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
-
-              <input
-                type="number"
-                placeholder="Wickets"
-                value={team2Wickets}
-                onChange={(e) =>
-                  setTeam2Wickets(
-                    e.target.value
-                  )
-                }
-              />
-
-              <button
-                onClick={addTeam2Bowler}
-                className="secondary-btn w-full py-3 rounded-xl"
-              >
-
-                Add Bowler
-
-              </button>
-
-              <div className="overflow-x-auto mt-5">
-
-                <table className="w-full">
-
-                  <thead>
-
-                    <tr className="text-slate-400 text-sm border-b border-[#223554]">
-
-                      <th className="py-3 text-left">
-                        Bowler
-                      </th>
-
-                      <th>O</th>
-
-                      <th>R</th>
-
-                      <th>W</th>
-
-                      <th>Econ</th>
-
-                    </tr>
-
-                  </thead>
-
-                  <tbody>
-
-                    {team2Bowlers.map((bowler, index) => (
-
-                      <tr
-                        key={index}
-                        className="border-b border-[#223554]/40 text-center"
-                      >
-
-                        <td className="py-3 text-left text-white font-semibold">
-                          {bowler.name}
-                        </td>
-
-                        <td>{bowler.overs}</td>
-
-                        <td>{bowler.runsGiven}</td>
-
-                        <td>{bowler.wickets}</td>
-
-                        <td className="text-emerald-400 font-bold">
-                          {bowler.economy}
-                        </td>
-
-                      </tr>
-
-                    ))}
-
-                  </tbody>
-
-                </table>
-
-              </div>
-
-            </div>
+            <input
+              type="number"
+              placeholder="6s"
+              value={sixes}
+              onChange={(e) =>
+                setSixes(
+                  e.target.value
+                )
+              }
+            />
 
           </div>
+
+          <button
+            onClick={addBatter}
+            className="w-full bg-cyan-500 text-white py-4 rounded-2xl font-bold"
+          >
+            Add Batter
+          </button>
+
+          <table className="w-full text-white">
+
+            <thead>
+
+              <tr className="text-left border-b border-[#223554]">
+
+                <th>Batter</th>
+                <th>R</th>
+                <th>B</th>
+                <th>4s</th>
+                <th>6s</th>
+                <th>SR</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {batters.map(
+                (batter, index) => (
+
+                  <tr key={index}>
+
+                    <td>{batter.name}</td>
+                    <td>{batter.runs}</td>
+                    <td>{batter.balls}</td>
+                    <td>{batter.fours}</td>
+                    <td>{batter.sixes}</td>
+                    <td>{batter.strikeRate}</td>
+
+                  </tr>
+
+                )
+              )}
+
+            </tbody>
+
+          </table>
 
         </div>
 
       </div>
 
-    </div>
+      {/* TEAM 2 BATTING */}
+
+      <div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-hidden">
+
+        <div className="p-6 border-b border-[#223554]">
+
+          <h2 className="text-2xl font-black text-white">
+            {team2} Batting
+          </h2>
+
+        </div>
+
+        <div className="p-6 space-y-4">
+
+          <input
+            type="text"
+            placeholder={`${team2} Batter Name`}
+            value={team2BatterName}
+            onChange={(e) =>
+              setTeam2BatterName(
+                e.target.value
+              )
+            }
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+
+            <input
+              type="number"
+              placeholder="Runs"
+              value={team2Runs}
+              onChange={(e) =>
+                setTeam2Runs(
+                  e.target.value
+                )
+              }
+            />
+
+            <input
+              type="number"
+              placeholder="Balls"
+              value={team2Balls}
+              onChange={(e) =>
+                setTeam2Balls(
+                  e.target.value
+                )
+              }
+            />
+
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+
+            <input
+              type="number"
+              placeholder="4s"
+              value={team2Fours}
+              onChange={(e) =>
+                setTeam2Fours(
+                  e.target.value
+                )
+              }
+            />
+
+            <input
+              type="number"
+              placeholder="6s"
+              value={team2Sixes}
+              onChange={(e) =>
+                setTeam2Sixes(
+                  e.target.value
+                )
+              }
+            />
+
+          </div>
+
+          <button
+            onClick={addTeam2Batter}
+            className="w-full bg-cyan-500 text-white py-4 rounded-2xl font-bold"
+          >
+            Add Batter
+          </button>
+
+          <table className="w-full text-white">
+
+            <thead>
+
+              <tr className="text-left border-b border-[#223554]">
+
+                <th>Batter</th>
+                <th>R</th>
+                <th>B</th>
+                <th>4s</th>
+                <th>6s</th>
+                <th>SR</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {team2Batters.map(
+                (batter, index) => (
+
+                  <tr key={index}>
+
+                    <td>{batter.name}</td>
+                    <td>{batter.runs}</td>
+                    <td>{batter.balls}</td>
+                    <td>{batter.fours}</td>
+                    <td>{batter.sixes}</td>
+                    <td>{batter.strikeRate}</td>
+
+                  </tr>
+
+                )
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+      {/* TEAM 1 BOWLING */}
+
+      <div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-hidden">
+
+        <div className="p-6 border-b border-[#223554]">
+
+          <h2 className="text-2xl font-black text-white">
+            {team1} Bowling
+          </h2>
+
+        </div>
+
+        <div className="p-6 space-y-4">
+
+          <input
+            type="text"
+            placeholder={`${team1} Bowler Name`}
+            value={bowlerName}
+            onChange={(e) =>
+              setBowlerName(
+                e.target.value
+              )
+            }
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+
+            <input
+              type="number"
+              placeholder="Overs"
+              value={overs}
+              onChange={(e) =>
+                setOvers(
+                  e.target.value
+                )
+              }
+            />
+
+            <input
+              type="number"
+              placeholder="Runs"
+              value={runsGiven}
+              onChange={(e) =>
+                setRunsGiven(
+                  e.target.value
+                )
+              }
+            />
+
+          </div>
+
+          <input
+            type="number"
+            placeholder="Wickets"
+            value={wickets}
+            onChange={(e) =>
+              setWickets(
+                e.target.value
+              )
+            }
+          />
+
+          <button
+            onClick={addBowler}
+            className="w-full bg-green-500 text-white py-4 rounded-2xl font-bold"
+          >
+            Add Bowler
+          </button>
+
+          <table className="w-full text-white">
+
+            <thead>
+
+              <tr className="text-left border-b border-[#223554]">
+
+                <th>Bowler</th>
+                <th>O</th>
+                <th>R</th>
+                <th>W</th>
+                <th>Econ</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {bowlers.map(
+                (bowler, index) => (
+
+                  <tr key={index}>
+
+                    <td>{bowler.name}</td>
+                    <td>{bowler.overs}</td>
+                    <td>{bowler.runsGiven}</td>
+                    <td>{bowler.wickets}</td>
+                    <td>{bowler.economy}</td>
+
+                  </tr>
+
+                )
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+      {/* TEAM 2 BOWLING */}
+
+      <div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-hidden">
+
+        <div className="p-6 border-b border-[#223554]">
+
+          <h2 className="text-2xl font-black text-white">
+            {team2} Bowling
+          </h2>
+
+        </div>
+
+        <div className="p-6 space-y-4">
+
+          <input
+            type="text"
+            placeholder={`${team2} Bowler Name`}
+            value={team2BowlerName}
+            onChange={(e) =>
+              setTeam2BowlerName(
+                e.target.value
+              )
+            }
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+
+            <input
+              type="number"
+              placeholder="Overs"
+              value={team2Overs}
+              onChange={(e) =>
+                setTeam2Overs(
+                  e.target.value
+                )
+              }
+            />
+
+            <input
+              type="number"
+              placeholder="Runs"
+              value={team2RunsGiven}
+              onChange={(e) =>
+                setTeam2RunsGiven(
+                  e.target.value
+                )
+              }
+            />
+
+          </div>
+
+          <input
+            type="number"
+            placeholder="Wickets"
+            value={team2Wickets}
+            onChange={(e) =>
+              setTeam2Wickets(
+                e.target.value
+              )
+            }
+          />
+
+          <button
+            onClick={addTeam2Bowler}
+            className="w-full bg-green-500 text-white py-4 rounded-2xl font-bold"
+          >
+            Add Bowler
+          </button>
+
+          <table className="w-full text-white">
+
+            <thead>
+
+              <tr className="text-left border-b border-[#223554]">
+
+                <th>Bowler</th>
+                <th>O</th>
+                <th>R</th>
+                <th>W</th>
+                <th>Econ</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {team2Bowlers.map(
+                (bowler, index) => (
+
+                  <tr key={index}>
+
+                    <td>{bowler.name}</td>
+                    <td>{bowler.overs}</td>
+                    <td>{bowler.runsGiven}</td>
+                    <td>{bowler.wickets}</td>
+                    <td>{bowler.economy}</td>
+
+                  </tr>
+
+                )
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+<div className="xl:col-span-2 flex justify-center pt-4">
+
+  <button
+
+    onClick={() => {
+
+      if (statsSaved) return;
+ let existingPlayers =
+    JSON.parse(
+      localStorage.getItem(
+        'player_stats_data'
+      ) || '[]'
+    );
+
+  // TRACK MATCH PARTICIPATION
+  const updatedThisMatch =
+    new Set<string>();
+
+  // UNIVERSAL PLAYER UPDATE
+
+  const updatePlayerStats = (
+
+    playerName: string,
+    playerTeam: string,
+    runsToAdd: number,
+    wicketsToAdd: number
+
+  ) => {
+
+    const playerKey =
+      `${playerName.trim().toLowerCase()}_${playerTeam}`;
+
+    const existingPlayer =
+      existingPlayers.find(
+        (p: any) =>
+
+          p.name
+            .trim()
+            .toLowerCase() ===
+          playerName
+            .trim()
+            .toLowerCase()
+
+          &&
+
+          p.team === playerTeam
+      );
+
+    if (existingPlayer) {
+
+      existingPlayer.runs =
+        Number(existingPlayer.runs || 0)
+        + runsToAdd;
+
+      existingPlayer.wickets =
+        Number(existingPlayer.wickets || 0)
+        + wicketsToAdd;
+
+      // ONLY COUNT MATCH ONCE
+
+      if (
+        !updatedThisMatch.has(
+          playerKey
+        )
+      ) {
+
+        existingPlayer.matches =
+          Number(
+            existingPlayer.matches || 0
+          ) + 1;
+
+        updatedThisMatch.add(
+          playerKey
+        );
+
+      }
+
+      existingPlayer.lastUpdated =
+        Date.now();
+
+    }
+
+    else {
+
+      existingPlayers.push({
+
+        id:
+          Date.now() +
+          Math.random(),
+
+        name:
+          playerName.trim(),
+
+        team:
+          playerTeam,
+
+        runs:
+          runsToAdd,
+
+        wickets:
+          wicketsToAdd,
+
+        matches: 1,
+
+        lastUpdated:
+          Date.now(),
+
+      });
+
+      updatedThisMatch.add(
+        playerKey
+      );
+
+    }
+
+  };
+
+  // TEAM 1 BATTERS
+
+  batters.forEach((batter: any) => {
+
+    updatePlayerStats(
+
+      batter.name,
+      team1,
+
+      Number(batter.runs || 0),
+
+      0
+
+    );
+
+  });
+
+  // TEAM 2 BATTERS
+
+  team2Batters.forEach((batter: any) => {
+
+    updatePlayerStats(
+
+      batter.name,
+      team2,
+
+      Number(batter.runs || 0),
+
+      0
+
+    );
+
+  });
+
+  // TEAM 1 BOWLERS
+
+  bowlers.forEach((bowler: any) => {
+
+    updatePlayerStats(
+
+      bowler.name,
+      team1,
+
+      0,
+
+      Number(bowler.wickets || 0)
+
+    );
+
+  });
+
+  // TEAM 2 BOWLERS
+
+  team2Bowlers.forEach((bowler: any) => {
+
+    updatePlayerStats(
+
+      bowler.name,
+      team2,
+
+      0,
+
+      Number(bowler.wickets || 0)
+
+    );
+
+  });
+
+  // REMOVE DUPLICATES
+
+  existingPlayers =
+    existingPlayers.filter(
+
+      (
+        player: any,
+        index: number,
+        self: any[]
+      ) =>
+
+        index ===
+        self.findIndex(
+
+          (p: any) =>
+
+            p.name
+              .trim()
+              .toLowerCase() ===
+            player.name
+              .trim()
+              .toLowerCase()
+
+            &&
+
+            p.team ===
+            player.team
+        )
+    );
+
+  // AUTO SORT
+
+  existingPlayers.sort(
+
+    (a: any, b: any) => {
+
+      if (
+        b.runs !== a.runs
+      ) {
+        return (
+          b.runs - a.runs
+        );
+      }
+
+      return (
+        b.wickets -
+        a.wickets
+      );
+
+    }
+  );
+
+  // SAVE
+
+  localStorage.setItem(
+
+    'player_stats_data',
+
+    JSON.stringify(
+      existingPlayers
+    )
 
   );
+
+  // FORCE LIVE UPDATE
+
+  window.dispatchEvent(
+    new Event('storage')
+  );
+
+  setMatchCompleted(true);
+
+  setStatsSaved(true);
+
+}}
+    disabled={matchCompleted}
+
+    className={`px-10 py-4 rounded-2xl text-xl font-black
+
+    ${matchCompleted
+
+      ? 'bg-emerald-600 text-white'
+
+      : 'bg-red-500 hover:bg-red-400 text-white'
+
+    }`}
+  >
+
+    {matchCompleted
+      ? 'Match Completed'
+      : 'Complete Match'}
+
+  </button>
+
+</div>
+
+</div>
+
+);
 
 }

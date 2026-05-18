@@ -94,6 +94,11 @@ export default function Fixtures({
                   Status
 
                 </th>
+                <th className="px-5 py-4 text-left text-xs font-black uppercase tracking-wider">
+
+                  Result
+
+                </th>
 
               </tr>
 
@@ -209,6 +214,14 @@ export default function Fixtures({
                           {match.status}
 
                         </span>
+
+                      </td>
+
+                      {/* Result */}
+
+                      <td className="px-5 py-5 text-green-400 font-bold whitespace-nowrap">
+
+                        {match.result || '-'}
 
                       </td>
 

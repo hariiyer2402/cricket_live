@@ -201,33 +201,66 @@ export default function Dashboard() {
 
     if (!confirmReset) {
 
-      setConfirmReset(true);
+    setConfirmReset(true);
 
-      return;
+    return;
 
-    }
+  }
 
-    setMatches([]);
+  // RESET STATES
 
-    setTournament(null);
+  setMatches([]);
 
-    setStandings([]);
+  setTournament(null);
 
-    localStorage.removeItem(
-      LS_MATCHES
-    );
+  setStandings([]);
 
-    localStorage.removeItem(
-      'current_tournament'
-    );
+  // REMOVE MAIN STORAGE
 
-    setConfirmReset(false);
+  localStorage.removeItem(
+    LS_MATCHES
+  );
 
-  };
+  localStorage.removeItem(
+    'current_tournament'
+  );
+
+  // REMOVE PLAYER STATS
+
+  localStorage.removeItem(
+    'player_stats_data'
+  );
+
+  // REMOVE ALL SAVED MATCHES
+
+  Object.keys(localStorage)
+    .forEach((key) => {
+
+      if (
+        key.startsWith('match_')
+      ) {
+
+        localStorage.removeItem(
+          key
+        );
+
+      }
+
+    });
+
+  // FORCE LIVE REFRESH
+
+  window.dispatchEvent(
+    new Event('storage')
+  );
+
+  setConfirmReset(false);
+
+};
 
   return (
 
-    <div className="min-h-screen bg-[#06121E] text-white font-sans">
+    <div className="min-h-screen bg-transparent text-white font-sans">
 
       {/* HEADER */}
 

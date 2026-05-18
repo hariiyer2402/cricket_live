@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 interface Player {
   id: number;
@@ -7,42 +8,81 @@ interface Player {
   runs: number;
   wickets: number;
   matches: number;
+  lastUpdated: number;
 }
 
 const LS_KEY = 'player_stats_data';
 
 export default function AwardsPage() {
 
-  const players: Player[] =
-    JSON.parse(
-      localStorage.getItem(
-        LS_KEY
-      ) || '[]'
-    );
+  const [players, setPlayers] =
+  useState<Player[]>([]);
+
+useEffect(() => {
+
+  const loadPlayers = () => {
+
+    const savedPlayers =
+      JSON.parse(
+        localStorage.getItem(
+          LS_KEY
+        ) || '[]'
+      );
+
+    setPlayers(savedPlayers);
+
+  };
+
+  // INITIAL LOAD
+  loadPlayers();
+
+  // REAL TIME UPDATE
+  const interval =
+    setInterval(loadPlayers, 1000);
+
+  return () =>
+    clearInterval(interval);
+
+}, []);
 
   // ORANGE CAP
 
   const orangeCapWinner =
-    [...players]
-      .filter(
-        player => player.runs > 0
-      )
-      .sort(
-        (a, b) =>
-          b.runs - a.runs
-      )[0];
+  [...players]
+    .filter(
+      player => player.runs > 0
+    )
+    .sort((a, b) => {
+
+      if (b.runs !== a.runs) {
+        return b.runs - a.runs;
+      }
+
+      return a.matches - b.matches;
+
+    })[0];
 
   // PURPLE CAP
 
   const purpleCapWinner =
-    [...players]
-      .filter(
-        player => player.wickets > 0
-      )
-      .sort(
-        (a, b) =>
-          b.wickets - a.wickets
-      )[0];
+  [...players]
+    .filter(
+      player => player.wickets > 0
+    )
+    .sort((a, b) => {
+
+      if (
+        b.wickets !== a.wickets
+      ) {
+        return (
+          b.wickets -
+          a.wickets
+        );
+      }
+
+      return a.matches - b.matches;
+
+    })[0];
 
   return (
 

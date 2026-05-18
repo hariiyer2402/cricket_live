@@ -43,7 +43,7 @@ export default function LiveScore() {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-b from-[#06121E] via-[#08182A] to-[#0B1628] overflow-x-hidden">
+    <div className="min-h-screen bg-transparent overflow-x-hidden">
 
       {/* TOP NAV */}
 
@@ -109,13 +109,11 @@ export default function LiveScore() {
         {/* LIVE SCORING PANEL */}
 
         <LiveScoringPanel
-          matchId={String(
-            match.id
-          )}
+          key={match.id}
+          matchId={String(match.id)}
           team1={match.team1}
           team2={match.team2}
         />
-
       </div>
 
     </div>

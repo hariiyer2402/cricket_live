@@ -41,9 +41,9 @@ html,
 body,
 #root {
 
-min-height: 100%;
+min-height: 100vh;
 
-background: var(--bg-main);
+background: transparent;
 
 color: var(--text-main);
 
@@ -57,28 +57,140 @@ overflow-x: hidden;
 
 /* BODY BACKGROUND */
 
+/* BODY BACKGROUND */
+
+/* BODY BACKGROUND */
+
 body {
 
 background:
 radial-gradient(
 circle at top,
+rgba(255, 0, 120, 0.45),
+transparent 40%
+),
+
+radial-gradient(
+circle at bottom,
+rgba(0, 102, 255, 0.35),
+transparent 45%
+),
+
+linear-gradient(
+180deg,
+#020617 0%,
+#030712 40%,
+#050B16 100%
+);
+
+background-attachment: fixed;
+
+position: relative;
+
+overflow-x: hidden;
+
+}
+/* SMOKE GLOW EFFECT */
+
+body::before {
+
+content: '';
+
+position: fixed;
+
+inset: -20%;
+
+background:
+
+radial-gradient(
+circle at 20% 20%,
+rgba(255, 0, 100, 0.18),
+transparent 30%
+),
+
+radial-gradient(
+circle at 80% 30%,
+rgba(140, 0, 255, 0.14),
+transparent 30%
+),
+
+radial-gradient(
+circle at 50% 90%,
+rgba(0, 132, 255, 0.16),
+transparent 35%
+);
+
+filter:
+blur(120px);
+
+pointer-events: none;
+
+z-index: -1;
+
+}
+
+/* ANIMATED GLOW OVERLAY */
+
+body::before {
+
+content: '';
+
+position: fixed;
+
+inset: 0;
+
+background:
+radial-gradient(
+circle at 20% 20%,
+rgba(255, 0, 120, 0.12),
+transparent 25%
+),
+
+radial-gradient(
+circle at 80% 30%,
 rgba(0, 194, 255, 0.10),
 transparent 30%
 ),
 
-
 radial-gradient(
-  circle at bottom right,
-  rgba(74, 222, 128, 0.06),
-  transparent 30%
-),
-
-linear-gradient(
-  180deg,
-  #06121E 0%,
-  #08182A 100%
+circle at 50% 80%,
+rgba(132, 0, 255, 0.12),
+transparent 30%
 );
 
+filter:
+blur(80px);
+
+animation:
+gradientMove 12s ease-in-out infinite alternate;
+
+pointer-events: none;
+
+z-index: -1;
+
+}
+
+/* BACKGROUND ANIMATION */
+
+@keyframes gradientMove {
+
+0% {
+
+transform:
+translateY(0px)
+translateX(0px)
+scale(1);
+
+}
+
+100% {
+
+transform:
+translateY(-20px)
+translateX(10px)
+scale(1.05);
+
+}
 
 }
 
@@ -459,14 +571,12 @@ scrollbar-width: thin;
 
 body {
 
-
 background:
-  linear-gradient(
-    180deg,
-    #06121E 0%,
-    #08182A 100%
-  );
-
+linear-gradient(
+135deg,
+#040A18,
+#08162A
+);
 
 }
 
