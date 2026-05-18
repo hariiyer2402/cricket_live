@@ -66,21 +66,21 @@ body {
 background:
 radial-gradient(
 circle at top,
-rgba(255, 0, 120, 0.45),
-transparent 40%
+rgba(255, 0, 120, 0.28),
+transparent 38%
 ),
 
 radial-gradient(
 circle at bottom,
-rgba(0, 102, 255, 0.35),
-transparent 45%
+rgba(0, 102, 255, 0.22),
+transparent 42%
 ),
 
 linear-gradient(
 180deg,
 #020617 0%,
-#030712 40%,
-#050B16 100%
+#040B16 45%,
+#06121E 100%
 );
 
 background-attachment: fixed;
