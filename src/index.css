@@ -41,7 +41,7 @@ html,
 body,
 #root {
 
-min-height: 100vh;
+min-height: 100dvh;
 
 background: transparent;
 
@@ -167,6 +167,20 @@ gradientMove 12s ease-in-out infinite alternate;
 pointer-events: none;
 
 z-index: -1;
+
+}
+
+#root {
+
+background:
+linear-gradient(
+180deg,
+#020617 0%,
+#030712 50%,
+#06121E 100%
+) !important;
+
+min-height: 100dvh;
 
 }
 
