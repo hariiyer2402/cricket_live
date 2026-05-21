@@ -517,11 +517,14 @@ export default function Dashboard() {
 
               <div className="bg-[#111C30] border border-[#223554] rounded-3xl p-5 shadow-2xl">
 
-                <Fixtures
-                  matches={
-                    tournament.fixtures
-                  }
-                />
+              <Fixtures
+                matches={
+                  tournament.fixtures
+                }
+                tournamentName={
+                  tournament.name
+                }
+              />
 
               </div>
 

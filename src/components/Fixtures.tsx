@@ -13,10 +13,12 @@ interface Fixture {
 
 interface Props {
   matches: Fixture[];
+  tournamentName: string;
 }
 
 export default function Fixtures({
   matches,
+  tournamentName,
 }: Props) {
 
   return (
@@ -35,7 +37,7 @@ export default function Fixtures({
 
           <h2 className="text-3xl font-black text-white">
 
-            Upcoming Match List
+            {tournamentName || 'Upcoming Match List'}
 
           </h2>
 

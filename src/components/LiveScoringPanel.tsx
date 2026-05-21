@@ -14,29 +14,8 @@ export default function LiveScoringPanel({
 // ------------------------------------------------------------------------------------------------------
   // TEAM 1 BATTERS
 
-  const [batters, setBatters] =
-    useState<any[]>(Array.from(
-      { length: 11 },
-
-      (_, i) => ({
-
-        name:
-          `${team1} Player ${i + 1}`,
-
-        runs: 0,
-        balls: 0,
-        fours: 0,
-        sixes: 0,
-
-        strikeRate: '0.00',
-
-        out: false,
-
-      })
-
-    )
-
-  );
+const [batters, setBatters] =
+  useState<any[]>([]);
 
   const [batterName, setBatterName] =
     useState('');
@@ -55,29 +34,8 @@ export default function LiveScoringPanel({
 
   // TEAM 2 BATTERS
 
-  const [team2Batters, setTeam2Batters] =
-    useState<any[]>( Array.from(
-      { length: 11 },
-
-      (_, i) => ({
-
-        name:
-          `${team2} Player ${i + 1}`,
-
-        runs: 0,
-        balls: 0,
-        fours: 0,
-        sixes: 0,
-
-        strikeRate: '0.00',
-
-        out: false,
-
-      })
-
-    )
-
-  );
+const [team2Batters, setTeam2Batters] =
+  useState<any[]>([]);
 
   const [team2BatterName, setTeam2BatterName] =
     useState('');
@@ -236,165 +194,181 @@ export default function LiveScoringPanel({
 // ------------------------------------------------------------------------------------------------------
   // ADD TEAM 1 BATTER
 
-  const addBatter = () => {
+  // ADD TEAM 1 BATTER
 
-    if (
-      !batterName ||
-      !runs ||
-      !balls
-    ) return;
+const addBatter = () => {
 
-    const strikeRate =
-      (
-        (Number(runs) /
-          Number(balls)) *
-        100
-      ).toFixed(2);
+  if (
+    !batterName.trim() ||
+    !runs ||
+    !balls
+  ) return;
 
-setBatters(prev => {
+  const strikeRate = (
+    (Number(runs) / Number(balls)) * 100
+  ).toFixed(2);
 
-  const existingPlayerIndex =
-    prev.findIndex(
-      player =>
-        player.name
-          .trim()
-          .toLowerCase() ===
-        batterName
-          .trim()
-          .toLowerCase()
-    );
+  setBatters(prev => {
 
-  if (existingPlayerIndex !== -1) {
+    const existingPlayerIndex =
+      prev.findIndex(
+        player =>
+          player.name.trim().toLowerCase() ===
+          batterName.trim().toLowerCase()
+      );
 
-    const updatedBatters =
-      [...prev];
+    // UPDATE EXISTING PLAYER
 
-    updatedBatters[
-      existingPlayerIndex
-    ] = {
+    if (existingPlayerIndex !== -1) {
 
-      ...updatedBatters[
-        existingPlayerIndex
-      ],
+      const updatedBatters = [...prev];
 
-      runs,
-      balls,
-      fours,
-      sixes,
-      strikeRate,
+      updatedBatters[existingPlayerIndex] = {
 
-    };
+        ...updatedBatters[existingPlayerIndex],
 
-    return updatedBatters;
+        runs: Number(runs),
 
-  }
+        balls: Number(balls),
 
-  return [
+        fours: Number(fours || 0),
 
-    ...prev,
+        sixes: Number(sixes || 0),
 
-    {
-      name: batterName,
-      runs,
-      balls,
-      fours,
-      sixes,
-      strikeRate,
-      out: false,
-    },
+        strikeRate,
 
-  ];
+      };
 
-});
+      return updatedBatters;
 
-    setBatterName('');
-    setRuns('');
-    setBalls('');
-    setFours('');
-    setSixes('');
+    }
 
-  };
+    // ADD NEW PLAYER
+
+    return [
+
+      ...prev,
+
+      {
+
+        name: batterName.trim(),
+
+        runs: Number(runs),
+
+        balls: Number(balls),
+
+        fours: Number(fours || 0),
+
+        sixes: Number(sixes || 0),
+
+        strikeRate,
+
+        howOut: 'not out',
+
+      },
+
+    ];
+
+  });
+
+  // CLEAR FORM
+
+  setBatterName('');
+  setRuns('');
+  setBalls('');
+  setFours('');
+  setSixes('');
+
+};
 // ------------------------------------------------------------------------------------------------------
   // ADD TEAM 2 BATTER
 
-  const addTeam2Batter = () => {
+  // ADD TEAM 2 BATTER
 
-    if (
-      !team2BatterName ||
-      !team2Runs ||
-      !team2Balls
-    ) return;
+const addTeam2Batter = () => {
 
-    const strikeRate =
-      (
-        (Number(team2Runs) /
-          Number(team2Balls)) *
-        100
-      ).toFixed(2);
+  if (
+    !team2BatterName.trim() ||
+    !team2Runs ||
+    !team2Balls
+  ) return;
 
-setBatters(prev => {
+  const strikeRate = (
+    (Number(team2Runs) / Number(team2Balls)) * 100
+  ).toFixed(2);
 
-  const existingPlayerIndex =
-    prev.findIndex(
-      player =>
-        player.name
-          .trim()
-          .toLowerCase() ===
-        batterName
-          .trim()
-          .toLowerCase()
-    );
+  setTeam2Batters(prev => {
 
-  if (existingPlayerIndex !== -1) {
+    const existingPlayerIndex =
+      prev.findIndex(
+        player =>
+          player.name.trim().toLowerCase() ===
+          team2BatterName.trim().toLowerCase()
+      );
 
-    const updatedBatters =
-      [...prev];
+    // UPDATE EXISTING PLAYER
 
-    updatedBatters[
-      existingPlayerIndex
-    ] = {
+    if (existingPlayerIndex !== -1) {
 
-      ...updatedBatters[
-        existingPlayerIndex
-      ],
+      const updatedBatters = [...prev];
 
-      runs,
-      balls,
-      fours,
-      sixes,
-      strikeRate,
+      updatedBatters[existingPlayerIndex] = {
 
-    };
+        ...updatedBatters[existingPlayerIndex],
 
-    return updatedBatters;
+        runs: Number(team2Runs),
 
-  }
+        balls: Number(team2Balls),
 
-  return [
+        fours: Number(team2Fours || 0),
 
-    ...prev,
+        sixes: Number(team2Sixes || 0),
 
-    {
-      name: batterName,
-      runs,
-      balls,
-      fours,
-      sixes,
-      strikeRate,
-      out: false,
-    },
+        strikeRate,
 
-  ];
+      };
 
-});
+      return updatedBatters;
 
-    setTeam2BatterName('');
-    setTeam2Runs('');
-    setTeam2Balls('');
-    setTeam2Fours('');
-    setTeam2Sixes('');
+    }
 
-  };
+    // ADD NEW PLAYER
+
+    return [
+
+      ...prev,
+
+      {
+
+        name: team2BatterName.trim(),
+
+        runs: Number(team2Runs),
+
+        balls: Number(team2Balls),
+
+        fours: Number(team2Fours || 0),
+
+        sixes: Number(team2Sixes || 0),
+
+        strikeRate,
+
+        howOut: 'not out',
+
+      },
+
+    ];
+
+  });
+
+  // CLEAR FORM
+
+  setTeam2BatterName('');
+  setTeam2Runs('');
+  setTeam2Balls('');
+  setTeam2Fours('');
+  setTeam2Sixes('');
+
+};
 // ------------------------------------------------------------------------------------------------------
   // ADD TEAM 1 BOWLER
 
@@ -616,73 +590,7 @@ setBatters(prev => {
 
   };
 // ---------------------------------------------------------------------------------------------
-  // TEAM 1 TOTAL SCORE
 
-const team1TotalRuns =
-  batters.reduce(
-    (acc, batter) =>
-      acc + Number(batter.runs || 0),
-    0
-  );
-
-const team1WicketsLost =
-  batters.filter(
-    batter =>
-      batter.howOut &&
-      batter.howOut !== 'not out'
-  ).length;
-
-const team1TotalBalls =
-  batters.reduce(
-    (acc, batter) =>
-      acc + Number(batter.balls || 0),
-    0
-  );
-
-const team1OversPlayed =
-  (
-    team1TotalBalls / 6
-  ).toFixed(1);
-
-const team1CRR =
-  (
-    team1TotalRuns /
-    Number(team1OversPlayed || 1)
-  ).toFixed(2);
-
-// TEAM 2 TOTAL SCORE
-
-const team2TotalRuns =
-  team2Batters.reduce(
-    (acc, batter) =>
-      acc + Number(batter.runs || 0),
-    0
-  );
-
-const team2WicketsLost =
-  team2Batters.filter(
-    batter =>
-      batter.howOut &&
-      batter.howOut !== 'not out'
-  ).length;
-
-const team2TotalBalls =
-  team2Batters.reduce(
-    (acc, batter) =>
-      acc + Number(batter.balls || 0),
-    0
-  );
-
-const team2OversPlayed =
-  (
-    team2TotalBalls / 6
-  ).toFixed(1);
-
-const team2CRR =
-  (
-    team2TotalRuns /
-    Number(team2OversPlayed || 1)
-  ).toFixed(2);
 
   return (
 
@@ -694,7 +602,7 @@ const team2CRR =
 {/* ------------------------------------------------------------------------------------------------------ */}
       {/* TEAM 1 BATTING */}
 
-      <div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-hidden">
+      <div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-x-auto">
 
         <div className="p-6 border-b border-[#223554]">
 
@@ -717,7 +625,7 @@ const team2CRR =
             }
           />
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
 
             <input
               type="number"
@@ -743,7 +651,7 @@ const team2CRR =
 
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
 
             <input
               type="number"
@@ -771,23 +679,31 @@ const team2CRR =
 
           <button
             onClick={addBatter}
-            className="w-full bg-cyan-500 text-white py-4 rounded-2xl font-bold"
+            className="w-full bg-cyan-500 text-white py-3 rounded-2xl font-bold"
           >
             Add Batter
           </button>
 
-          <table className="w-full text-white">
+          <div className="w-full overflow-x-auto">
+
+          <table className="w-full min-w-full text-white">
 
             <thead>
 
-              <tr className="bg-[#0F4CFF] text-white uppercase text-sm">
+              <tr className="bg-[#0F4CFF] text-white uppercase text-[11px] sm:text-sm">
 
                 <th className="text-left px-4 py-3">
                     Batter
                   </th>
 
                   <th>
-                    How Out
+                      <span className="hidden sm:inline">
+                          How Out
+                        </span>
+                                  
+                        <span className="sm:hidden">
+                          Out
+                        </span>
                   </th>
 
                   <th>
@@ -820,92 +736,108 @@ const team2CRR =
                 (batter, index) => (
 
                   <tr 
-                    key={index}
+                    key={`${batter.name}-${index}`}
                     className="hover:bg-[#16263D] transition-all"
                   >
 
-                    <td className="font-bold py-3 px-4">
+                    <td className="font-bold py-3 px-2 sm:px-4">
 
                       {batter.name}
 
-                      {(batter.howOut === 'not out' ||
-                        !batter.howOut) && (
-                        <span className="text-cyan-400">
-                          *
-                        </span>
-                      )}
+                  {(!batter.howOut ||
+                    batter.howOut === 'not out') && (
+                    <span className="text-cyan-400 ml-1">
+                      *
+                    </span>
+                  )}
 
                     </td>
                     
-                    <td className="text-slate-300">
+                    <td className="py-3 px-2 text-slate-300">
 
-          {batter.howOut &&
-batter.howOut !== 'not out' ? (
+  {batter.howOut &&
+  batter.howOut !== 'not out' ? (
 
-  <span className="text-slate-300 text-sm">
+    <span className="text-slate-300 text-sm">
+      {batter.howOut}
+    </span>
 
-    {batter.howOut}
+  ) : (
 
-  </span>
+    <select
 
-) : (
+      value={batter.howOut || 'not out'}
 
-  <select
+      onChange={(e) => {
 
-    value={batter.howOut || 'not out'}
+        const updated = [...batters];
 
-    onChange={(e) => {
+        updated[index].howOut =
+          e.target.value;
 
-      const updated =
-        [...batters];
+        setBatters(updated);
 
-      updated[index].howOut =
-        e.target.value;
+      }}
 
-      setBatters(updated);
+      className="
+        bg-[#16263D]
+        border border-[#223554]
+        rounded-lg
+        px-2
+        py-1
+        text-xs
+        sm:text-sm
+        text-white
+        w-full
+        min-w-[90px]
+      "
+    >
 
-    }}
+      <option value="not out">
+  Not Out
+</option>
 
-    className="
-      bg-[#16263D]
-      border border-[#223554]
-      rounded-xl
-      px-3
-      py-2
-      text-sm
-      text-white
-    "
-  >
+<option value="Bowled">
+  Bowled
+</option>
 
-    <option value="not out">
-      Not Out
-    </option>
+<option value="Caught">
+  Caught
+</option>
 
-    <option value="Bowled">
-      Bowled
-    </option>
+<option value="Run Out">
+  Run Out
+</option>
 
-    <option value="Catch">
-      Catch
-    </option>
+<option value="LBW">
+  LBW
+</option>
 
-    <option value="Run Out">
-      Run Out
-    </option>
+<option value="Stumped">
+  Stumped
+</option>
 
-    <option value="LBW">
-      LBW
-    </option>
+<option value="Hit Wicket">
+  Hit Wicket
+</option>
 
-    <option value="Stumped">
-      Stumped
-    </option>
+<option value="Retired Hurt">
+  Retired Hurt
+</option>
 
-  </select>
+<option value="Retired Out">
+  Retired Out
+</option>
 
-)}
+<option value="Obstructing the Field">
+  Obstructing the Field
+</option>
 
-            </td>
+    </select>
+
+  )}
+
+</td>
 
                     <td className="py-3">{batter.runs}</td>
                     <td className="py-3 text-slate-300">
@@ -930,219 +862,288 @@ batter.howOut !== 'not out' ? (
 
           </table>
 
+          </div>
+
         </div>
 
       </div>
 {/* ------------------------------------------------------------------------------------------------------ */}
-      {/* TEAM 2 BATTING */}
+{/* TEAM 2 BATTING */}
 
-      <div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-hidden">
+<div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-x-auto">
 
-        <div className="p-6 border-b border-[#223554]">
+  <div className="p-6 border-b border-[#223554]">
 
-          <h2 className="text-2xl font-black text-white">
-            {team2} Batting
-          </h2>
+    <h2 className="text-2xl font-black text-white">
+      {team2} Batting
+    </h2>
 
-        </div>
+  </div>
 
-        <div className="p-6 space-y-4">
+  <div className="p-3 sm:p-6 space-y-4">
 
-          <input
-            type="text"
-            placeholder={`${team2} Batter Name`}
-            value={team2BatterName}
-            onChange={(e) =>
-              setTeam2BatterName(
-                e.target.value
-              )
-            }
-          />
+    <input
+      type="text"
+      placeholder={`${team2} Batter Name`}
+      value={team2BatterName}
+      onChange={(e) =>
+        setTeam2BatterName(
+          e.target.value
+        )
+      }
+    />
 
-          <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-3">
 
-            <input
-              type="number"
-              placeholder="Runs"
-              value={team2Runs}
-              onChange={(e) =>
-                setTeam2Runs(
-                  e.target.value
-                )
-              }
-            />
+      <input
+        type="number"
+        placeholder="Runs"
+        value={team2Runs}
+        onChange={(e) =>
+          setTeam2Runs(
+            e.target.value
+          )
+        }
+      />
 
-            <input
-              type="number"
-              placeholder="Balls"
-              value={team2Balls}
-              onChange={(e) =>
-                setTeam2Balls(
-                  e.target.value
-                )
-              }
-            />
+      <input
+        type="number"
+        placeholder="Balls"
+        value={team2Balls}
+        onChange={(e) =>
+          setTeam2Balls(
+            e.target.value
+          )
+        }
+      />
 
-          </div>
+    </div>
 
-          <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-3">
 
-            <input
-              type="number"
-              placeholder="4s"
-              value={team2Fours}
-              onChange={(e) =>
-                setTeam2Fours(
-                  e.target.value
-                )
-              }
-            />
+      <input
+        type="number"
+        placeholder="4s"
+        value={team2Fours}
+        onChange={(e) =>
+          setTeam2Fours(
+            e.target.value
+          )
+        }
+      />
 
-            <input
-              type="number"
-              placeholder="6s"
-              value={team2Sixes}
-              onChange={(e) =>
-                setTeam2Sixes(
-                  e.target.value
-                )
-              }
-            />
+      <input
+        type="number"
+        placeholder="6s"
+        value={team2Sixes}
+        onChange={(e) =>
+          setTeam2Sixes(
+            e.target.value
+          )
+        }
+      />
 
-          </div>
+    </div>
 
-          <button
-            onClick={addTeam2Batter}
-            className="w-full bg-cyan-500 text-white py-4 rounded-2xl font-bold"
-          >
-            Add Batter
-          </button>
+    <button
+      onClick={addTeam2Batter}
+      className="w-full bg-cyan-500 text-white py-3 rounded-2xl font-bold"
+    >
+      Add Batter
+    </button>
 
-          <table className="w-full text-white">
+    <div className="w-full overflow-x-auto">
 
-            <thead>
+      <table className="w-full min-w-full text-white">
 
-              <tr className="bg-[#0F4CFF] text-white uppercase text-sm">
+        <thead>
 
-                <th>Batter</th>
-                <th>R</th>
-                <th>B</th>
-                <th>4s</th>
-                <th>6s</th>
-                <th>SR</th>
+          <tr className="bg-[#0F4CFF] text-white uppercase text-[11px] sm:text-sm">
+
+                <th className="text-left px-4 py-3">
+                    Batter
+                  </th>
+
+                  <th>
+                      <span className="hidden sm:inline">
+                          How Out
+                        </span>
+                                  
+                        <span className="sm:hidden">
+                          Out
+                        </span>
+                  </th>
+
+                  <th>
+                    R
+                  </th>
+
+                  <th>
+                    B
+                  </th>
+
+                  <th>
+                    4s
+                  </th>
+
+                  <th>
+                    6s
+                  </th>
+
+                  <th>
+                    SR
+                  </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          {team2Batters.map(
+            (batter, index) => (
+
+              <tr
+                key={`${batter.name}-${index}`}
+                className="hover:bg-[#16263D] transition-all"
+              >
+
+                <td className="font-bold py-3 px-2 sm:px-4 whitespace-nowrap">
+
+                  {batter.name}
+
+                  {(!batter.howOut ||
+                    batter.howOut === 'not out') && (
+                    <span className="text-cyan-400 ml-1">
+                      *
+                    </span>
+                  )}
+
+                </td>
+
+                <td className="py-3 px-2 text-slate-300 whitespace-nowrap">
+
+                  {batter.howOut &&
+                  batter.howOut !== 'not out' ? (
+
+                    <span className="text-slate-300 text-sm">
+                      {batter.howOut}
+                    </span>
+
+                  ) : (
+
+                    <select
+
+                      value={batter.howOut || 'not out'}
+
+                      onChange={(e) => {
+
+                        const updated =
+                          [...team2Batters];
+
+                        updated[index].howOut =
+                          e.target.value;
+
+                        setTeam2Batters(updated);
+
+                      }}
+
+                      className="
+                        bg-[#16263D]
+                        border border-[#223554]
+                        rounded-lg
+                        px-2
+                        py-1
+                        text-xs
+                        sm:text-sm
+                        text-white
+                        w-full
+                        min-w-[80px]
+                      "
+                    >
+
+<option value="not out">
+  Not Out
+</option>
+
+<option value="Bowled">
+  Bowled
+</option>
+
+<option value="Caught">
+  Caught
+</option>
+
+<option value="Run Out">
+  Run Out
+</option>
+
+<option value="LBW">
+  LBW
+</option>
+
+<option value="Stumped">
+  Stumped
+</option>
+
+<option value="Hit Wicket">
+  Hit Wicket
+</option>
+
+<option value="Retired Hurt">
+  Retired Hurt
+</option>
+
+<option value="Retired Out">
+  Retired Out
+</option>
+
+<option value="Obstructing the Field">
+  Obstructing the Field
+</option>
+
+                    </select>
+
+                  )}
+
+                </td>
+
+                <td className="py-2 px-1 text-xs sm:text-sm font-bold text-white whitespace-nowrap">
+                  {batter.runs}
+                </td>
+
+                <td className="py-2 px-1 text-xs sm:text-sm text-slate-300 whitespace-nowrap">
+                  {batter.balls}
+                </td>
+
+                <td className="py-2 px-1 text-xs sm:text-sm text-slate-300 whitespace-nowrap">
+                  {batter.fours}
+                </td>
+
+                <td className="py-2 px-1 text-xs sm:text-sm text-slate-300 whitespace-nowrap">
+                  {batter.sixes}
+                </td>
+
+                <td className="py-2 px-1 text-xs sm:text-sm text-cyan-400 font-semibold whitespace-nowrap">
+                  {batter.strikeRate}
+                </td>
 
               </tr>
 
-            </thead>
+            )
+          )}
 
-            <tbody className="divide-y divide-[#223554]">
+        </tbody>
 
-              {team2Batters.map(
-                (batter, index) => (
+      </table>
 
-                  <tr 
-                    key={index}
-                    className="hover:bg-[#16263D] transition-all"
-                  >
+    </div>
 
-                    <td className="font-bold py-3 px-4">
+  </div>
 
-                      {batter.name}
-
-                      {!batter.out && (
-                        <span className="text-cyan-400">
-                          *
-                        </span>
-                      )}
-
-                    </td>
-                    
-                    <td className="text-slate-300">
-
-                      <select
-
-    value={batter.howOut || 'not out'}
-
-    onChange={(e) => {
-
-      const updated =
-        [...batters];
-
-      updated[index].howOut =
-        e.target.value;
-
-      setBatters(updated);
-
-    }}
-
-    className="
-      bg-transparent
-      border-none
-      text-sm
-      text-slate-300
-      w-[130px]
-      p-0
-      focus:ring-0
-    "
-  >
-
-    <option value="not out">
-      Not Out
-    </option>
-
-    <option value="Bowled">
-      Bowled
-    </option>
-
-    <option value="Catch">
-      Catch
-    </option>
-
-    <option value="Run Out">
-      Run Out
-    </option>
-
-    <option value="LBW">
-      LBW
-    </option>
-
-    <option value="Stumped">
-      Stumped
-    </option>
-
-  </select>
-
-                    </td>
+</div>
 
 
-                    <td className="py-3 font-bold text-white">
-                      {batter.runs}
-                    </td>
-                    <td className="py-3 text-slate-300">
-                      {batter.balls}
-                    </td>
-                    <td className="py-3 text-slate-300">
-                      {batter.fours}
-                    </td>
-                    <td className="py-3 text-slate-300">
-                      {batter.sixes}
-                    </td>
-                    <td className="py-3 text-cyan-400 font-semibold">
-                      {batter.strikeRate}
-                    </td>
-
-                  </tr>
-
-                )
-              )}
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </div>
 {/* ------------------------------------------------------------------------------------------------------ */}
       {/* TEAM 1 BOWLING */}
 

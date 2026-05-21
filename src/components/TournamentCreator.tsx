@@ -159,6 +159,14 @@ else {
 
 }
 
+
+// SHUFFLE FIXTURES
+
+fixtures.sort(
+  () => Math.random() - 0.5
+);
+
+
 onCreate({
 
   name:
