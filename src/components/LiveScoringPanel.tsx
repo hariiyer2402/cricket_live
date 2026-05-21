@@ -11,11 +11,32 @@ export default function LiveScoringPanel({
   team1,
   team2,
 }: Props) {
-
+// ------------------------------------------------------------------------------------------------------
   // TEAM 1 BATTERS
 
   const [batters, setBatters] =
-    useState<any[]>([]);
+    useState<any[]>(Array.from(
+      { length: 11 },
+
+      (_, i) => ({
+
+        name:
+          `${team1} Player ${i + 1}`,
+
+        runs: 0,
+        balls: 0,
+        fours: 0,
+        sixes: 0,
+
+        strikeRate: '0.00',
+
+        out: false,
+
+      })
+
+    )
+
+  );
 
   const [batterName, setBatterName] =
     useState('');
@@ -35,7 +56,28 @@ export default function LiveScoringPanel({
   // TEAM 2 BATTERS
 
   const [team2Batters, setTeam2Batters] =
-    useState<any[]>([]);
+    useState<any[]>( Array.from(
+      { length: 11 },
+
+      (_, i) => ({
+
+        name:
+          `${team2} Player ${i + 1}`,
+
+        runs: 0,
+        balls: 0,
+        fours: 0,
+        sixes: 0,
+
+        strikeRate: '0.00',
+
+        out: false,
+
+      })
+
+    )
+
+  );
 
   const [team2BatterName, setTeam2BatterName] =
     useState('');
@@ -51,7 +93,7 @@ export default function LiveScoringPanel({
 
   const [team2Sixes, setTeam2Sixes] =
     useState('');
-
+// ------------------------------------------------------------------------------------------------------
   // TEAM 1 BOWLERS
 
   const [bowlers, setBowlers] =
@@ -68,7 +110,7 @@ export default function LiveScoringPanel({
 
   const [wickets, setWickets] =
     useState('');
-
+// ------------------------------------------------------------------------------------------------------
   // TEAM 2 BOWLERS
 
   const [team2Bowlers, setTeam2Bowlers] =
@@ -85,7 +127,7 @@ export default function LiveScoringPanel({
 
   const [team2Wickets, setTeam2Wickets] =
     useState('');
-
+// ------------------------------------------------------------------------------------------------------
   // MATCH STATUS
 
   const [matchCompleted, setMatchCompleted] =
@@ -96,11 +138,11 @@ export default function LiveScoringPanel({
 
   const [statsSaved, setStatsSaved] =
   useState(false);
-
+// ------------------------------------------------------------------------------------------------------
   // LOAD SAVED MATCH
 
   useEffect(() => {
-
+// ------------------------------------------------------------------------------------------------------
   // RESET OLD MATCH STATE
 
   setBatters([]);
@@ -116,7 +158,7 @@ export default function LiveScoringPanel({
   setLoaded(false);
 
   // LOAD CURRENT MATCH
-
+// ------------------------------------------------------------------------------------------------------
   const savedMatch =
     localStorage.getItem(
       `match_${matchId}`
@@ -156,7 +198,7 @@ export default function LiveScoringPanel({
   setLoaded(true);
 
 }, [matchId]);
-
+// ------------------------------------------------------------------------------------------------------
   // SAVE MATCH
 
   useEffect(() => {
@@ -191,7 +233,7 @@ export default function LiveScoringPanel({
   matchId,
 
 ]);
-
+// ------------------------------------------------------------------------------------------------------
   // ADD TEAM 1 BATTER
 
   const addBatter = () => {
@@ -209,20 +251,61 @@ export default function LiveScoringPanel({
         100
       ).toFixed(2);
 
-    setBatters(prev => [
+setBatters(prev => {
 
-      ...prev,
+  const existingPlayerIndex =
+    prev.findIndex(
+      player =>
+        player.name
+          .trim()
+          .toLowerCase() ===
+        batterName
+          .trim()
+          .toLowerCase()
+    );
 
-      {
-        name: batterName,
-        runs,
-        balls,
-        fours,
-        sixes,
-        strikeRate,
-      },
+  if (existingPlayerIndex !== -1) {
 
-    ]);
+    const updatedBatters =
+      [...prev];
+
+    updatedBatters[
+      existingPlayerIndex
+    ] = {
+
+      ...updatedBatters[
+        existingPlayerIndex
+      ],
+
+      runs,
+      balls,
+      fours,
+      sixes,
+      strikeRate,
+
+    };
+
+    return updatedBatters;
+
+  }
+
+  return [
+
+    ...prev,
+
+    {
+      name: batterName,
+      runs,
+      balls,
+      fours,
+      sixes,
+      strikeRate,
+      out: false,
+    },
+
+  ];
+
+});
 
     setBatterName('');
     setRuns('');
@@ -231,7 +314,7 @@ export default function LiveScoringPanel({
     setSixes('');
 
   };
-
+// ------------------------------------------------------------------------------------------------------
   // ADD TEAM 2 BATTER
 
   const addTeam2Batter = () => {
@@ -249,20 +332,61 @@ export default function LiveScoringPanel({
         100
       ).toFixed(2);
 
-    setTeam2Batters(prev => [
+setBatters(prev => {
 
-      ...prev,
+  const existingPlayerIndex =
+    prev.findIndex(
+      player =>
+        player.name
+          .trim()
+          .toLowerCase() ===
+        batterName
+          .trim()
+          .toLowerCase()
+    );
 
-      {
-        name: team2BatterName,
-        runs: team2Runs,
-        balls: team2Balls,
-        fours: team2Fours,
-        sixes: team2Sixes,
-        strikeRate,
-      },
+  if (existingPlayerIndex !== -1) {
 
-    ]);
+    const updatedBatters =
+      [...prev];
+
+    updatedBatters[
+      existingPlayerIndex
+    ] = {
+
+      ...updatedBatters[
+        existingPlayerIndex
+      ],
+
+      runs,
+      balls,
+      fours,
+      sixes,
+      strikeRate,
+
+    };
+
+    return updatedBatters;
+
+  }
+
+  return [
+
+    ...prev,
+
+    {
+      name: batterName,
+      runs,
+      balls,
+      fours,
+      sixes,
+      strikeRate,
+      out: false,
+    },
+
+  ];
+
+});
 
     setTeam2BatterName('');
     setTeam2Runs('');
@@ -271,7 +395,7 @@ export default function LiveScoringPanel({
     setTeam2Sixes('');
 
   };
-
+// ------------------------------------------------------------------------------------------------------
   // ADD TEAM 1 BOWLER
 
   const addBowler = () => {
@@ -381,7 +505,7 @@ export default function LiveScoringPanel({
     setWickets('');
 
   };
-
+// ------------------------------------------------------------------------------------------------------
   // ADD TEAM 2 BOWLER
 
   const addTeam2Bowler = () => {
@@ -491,11 +615,83 @@ export default function LiveScoringPanel({
     setTeam2Wickets('');
 
   };
+// ---------------------------------------------------------------------------------------------
+  // TEAM 1 TOTAL SCORE
+
+const team1TotalRuns =
+  batters.reduce(
+    (acc, batter) =>
+      acc + Number(batter.runs || 0),
+    0
+  );
+
+const team1WicketsLost =
+  batters.filter(
+    batter =>
+      batter.howOut &&
+      batter.howOut !== 'not out'
+  ).length;
+
+const team1TotalBalls =
+  batters.reduce(
+    (acc, batter) =>
+      acc + Number(batter.balls || 0),
+    0
+  );
+
+const team1OversPlayed =
+  (
+    team1TotalBalls / 6
+  ).toFixed(1);
+
+const team1CRR =
+  (
+    team1TotalRuns /
+    Number(team1OversPlayed || 1)
+  ).toFixed(2);
+
+// TEAM 2 TOTAL SCORE
+
+const team2TotalRuns =
+  team2Batters.reduce(
+    (acc, batter) =>
+      acc + Number(batter.runs || 0),
+    0
+  );
+
+const team2WicketsLost =
+  team2Batters.filter(
+    batter =>
+      batter.howOut &&
+      batter.howOut !== 'not out'
+  ).length;
+
+const team2TotalBalls =
+  team2Batters.reduce(
+    (acc, batter) =>
+      acc + Number(batter.balls || 0),
+    0
+  );
+
+const team2OversPlayed =
+  (
+    team2TotalBalls / 6
+  ).toFixed(1);
+
+const team2CRR =
+  (
+    team2TotalRuns /
+    Number(team2OversPlayed || 1)
+  ).toFixed(2);
 
   return (
 
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+{/* ------------------------------------------------------------------------------------------------------------ */}
 
+
+      
+{/* ------------------------------------------------------------------------------------------------------ */}
       {/* TEAM 1 BATTING */}
 
       <div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-hidden">
@@ -584,14 +780,35 @@ export default function LiveScoringPanel({
 
             <thead>
 
-              <tr className="text-left border-b border-[#223554]">
+              <tr className="bg-[#0F4CFF] text-white uppercase text-sm">
 
-                <th>Batter</th>
-                <th>R</th>
-                <th>B</th>
-                <th>4s</th>
-                <th>6s</th>
-                <th>SR</th>
+                <th className="text-left px-4 py-3">
+                    Batter
+                  </th>
+
+                  <th>
+                    How Out
+                  </th>
+
+                  <th>
+                    R
+                  </th>
+
+                  <th>
+                    B
+                  </th>
+
+                  <th>
+                    4s
+                  </th>
+
+                  <th>
+                    6s
+                  </th>
+
+                  <th>
+                    SR
+                  </th>
 
               </tr>
 
@@ -602,14 +819,107 @@ export default function LiveScoringPanel({
               {batters.map(
                 (batter, index) => (
 
-                  <tr key={index}>
+                  <tr 
+                    key={index}
+                    className="hover:bg-[#16263D] transition-all"
+                  >
 
-                    <td>{batter.name}</td>
-                    <td>{batter.runs}</td>
-                    <td>{batter.balls}</td>
-                    <td>{batter.fours}</td>
-                    <td>{batter.sixes}</td>
-                    <td>{batter.strikeRate}</td>
+                    <td className="font-bold py-3 px-4">
+
+                      {batter.name}
+
+                      {(batter.howOut === 'not out' ||
+                        !batter.howOut) && (
+                        <span className="text-cyan-400">
+                          *
+                        </span>
+                      )}
+
+                    </td>
+                    
+                    <td className="text-slate-300">
+
+          {batter.howOut &&
+batter.howOut !== 'not out' ? (
+
+  <span className="text-slate-300 text-sm">
+
+    {batter.howOut}
+
+  </span>
+
+) : (
+
+  <select
+
+    value={batter.howOut || 'not out'}
+
+    onChange={(e) => {
+
+      const updated =
+        [...batters];
+
+      updated[index].howOut =
+        e.target.value;
+
+      setBatters(updated);
+
+    }}
+
+    className="
+      bg-[#16263D]
+      border border-[#223554]
+      rounded-xl
+      px-3
+      py-2
+      text-sm
+      text-white
+    "
+  >
+
+    <option value="not out">
+      Not Out
+    </option>
+
+    <option value="Bowled">
+      Bowled
+    </option>
+
+    <option value="Catch">
+      Catch
+    </option>
+
+    <option value="Run Out">
+      Run Out
+    </option>
+
+    <option value="LBW">
+      LBW
+    </option>
+
+    <option value="Stumped">
+      Stumped
+    </option>
+
+  </select>
+
+)}
+
+            </td>
+
+                    <td className="py-3">{batter.runs}</td>
+                    <td className="py-3 text-slate-300">
+                      {batter.balls}
+                    </td>
+                    <td className="py-3 text-slate-300">
+                      {batter.fours}
+                    </td>
+                    <td className="py-3 text-slate-300">
+                      {batter.sixes}
+                    </td>
+                    <td className="py-3 text-cyan-400 font-semibold">
+                      {batter.strikeRate}
+                    </td>
 
                   </tr>
 
@@ -623,7 +933,7 @@ export default function LiveScoringPanel({
         </div>
 
       </div>
-
+{/* ------------------------------------------------------------------------------------------------------ */}
       {/* TEAM 2 BATTING */}
 
       <div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-hidden">
@@ -712,7 +1022,7 @@ export default function LiveScoringPanel({
 
             <thead>
 
-              <tr className="text-left border-b border-[#223554]">
+              <tr className="bg-[#0F4CFF] text-white uppercase text-sm">
 
                 <th>Batter</th>
                 <th>R</th>
@@ -725,19 +1035,101 @@ export default function LiveScoringPanel({
 
             </thead>
 
-            <tbody>
+            <tbody className="divide-y divide-[#223554]">
 
               {team2Batters.map(
                 (batter, index) => (
 
-                  <tr key={index}>
+                  <tr 
+                    key={index}
+                    className="hover:bg-[#16263D] transition-all"
+                  >
 
-                    <td>{batter.name}</td>
-                    <td>{batter.runs}</td>
-                    <td>{batter.balls}</td>
-                    <td>{batter.fours}</td>
-                    <td>{batter.sixes}</td>
-                    <td>{batter.strikeRate}</td>
+                    <td className="font-bold py-3 px-4">
+
+                      {batter.name}
+
+                      {!batter.out && (
+                        <span className="text-cyan-400">
+                          *
+                        </span>
+                      )}
+
+                    </td>
+                    
+                    <td className="text-slate-300">
+
+                      <select
+
+    value={batter.howOut || 'not out'}
+
+    onChange={(e) => {
+
+      const updated =
+        [...batters];
+
+      updated[index].howOut =
+        e.target.value;
+
+      setBatters(updated);
+
+    }}
+
+    className="
+      bg-transparent
+      border-none
+      text-sm
+      text-slate-300
+      w-[130px]
+      p-0
+      focus:ring-0
+    "
+  >
+
+    <option value="not out">
+      Not Out
+    </option>
+
+    <option value="Bowled">
+      Bowled
+    </option>
+
+    <option value="Catch">
+      Catch
+    </option>
+
+    <option value="Run Out">
+      Run Out
+    </option>
+
+    <option value="LBW">
+      LBW
+    </option>
+
+    <option value="Stumped">
+      Stumped
+    </option>
+
+  </select>
+
+                    </td>
+
+
+                    <td className="py-3 font-bold text-white">
+                      {batter.runs}
+                    </td>
+                    <td className="py-3 text-slate-300">
+                      {batter.balls}
+                    </td>
+                    <td className="py-3 text-slate-300">
+                      {batter.fours}
+                    </td>
+                    <td className="py-3 text-slate-300">
+                      {batter.sixes}
+                    </td>
+                    <td className="py-3 text-cyan-400 font-semibold">
+                      {batter.strikeRate}
+                    </td>
 
                   </tr>
 
@@ -751,7 +1143,7 @@ export default function LiveScoringPanel({
         </div>
 
       </div>
-
+{/* ------------------------------------------------------------------------------------------------------ */}
       {/* TEAM 1 BOWLING */}
 
       <div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-hidden">
@@ -767,15 +1159,32 @@ export default function LiveScoringPanel({
         <div className="p-6 space-y-4">
 
           <input
-            type="text"
-            placeholder={`${team1} Bowler Name`}
-            value={bowlerName}
-            onChange={(e) =>
-              setBowlerName(
-                e.target.value
-              )
-            }
+            list="team1-bowlers"
+              type="text"
+              placeholder={`${team1} Bowler Name`}
+              value={bowlerName}
+              onChange={(e) =>
+                setBowlerName(
+                  e.target.value
+                )
+              }
           />
+
+<datalist id="team1-bowlers">
+
+  {batters.map(
+    (player, index) => (
+
+      <option
+        key={index}
+        value={player.name}
+      />
+
+    )
+  )}
+
+</datalist>
+
 
           <div className="grid grid-cols-2 gap-4">
 
@@ -862,7 +1271,7 @@ export default function LiveScoringPanel({
         </div>
 
       </div>
-
+{/* ------------------------------------------------------------------------------------------------------ */}
       {/* TEAM 2 BOWLING */}
 
       <div className="bg-[#111C30] border border-[#223554] rounded-3xl overflow-hidden">
@@ -877,7 +1286,8 @@ export default function LiveScoringPanel({
 
         <div className="p-6 space-y-4">
 
-          <input
+        <input
+            list="team2-bowlers"
             type="text"
             placeholder={`${team2} Bowler Name`}
             value={team2BowlerName}
@@ -886,7 +1296,22 @@ export default function LiveScoringPanel({
                 e.target.value
               )
             }
-          />
+        />   
+
+        <datalist id="team2-bowlers">
+        
+          {team2Batters.map(
+            (player, index) => (
+            
+              <option
+                key={index}
+                value={player.name}
+              />
+            
+            )
+          )}
+
+        </datalist>
 
           <div className="grid grid-cols-2 gap-4">
 
@@ -987,11 +1412,11 @@ export default function LiveScoringPanel({
         'player_stats_data'
       ) || '[]'
     );
-
+// ------------------------------------------------------------------------------------------------------
   // TRACK MATCH PARTICIPATION
   const updatedThisMatch =
     new Set<string>();
-
+// ------------------------------------------------------------------------------------------------------
   // UNIVERSAL PLAYER UPDATE
 
   const updatePlayerStats = (
@@ -1033,7 +1458,7 @@ export default function LiveScoringPanel({
         + wicketsToAdd;
 
       // ONLY COUNT MATCH ONCE
-
+// ------------------------------------------------------------------------------------------------------
       if (
         !updatedThisMatch.has(
           playerKey
@@ -1092,7 +1517,7 @@ export default function LiveScoringPanel({
   };
 
   // TEAM 1 BATTERS
-
+// ------------------------------------------------------------------------------------------------------
   batters.forEach((batter: any) => {
 
     updatePlayerStats(
@@ -1107,7 +1532,7 @@ export default function LiveScoringPanel({
     );
 
   });
-
+// ------------------------------------------------------------------------------------------------------
   // TEAM 2 BATTERS
 
   team2Batters.forEach((batter: any) => {
@@ -1124,7 +1549,7 @@ export default function LiveScoringPanel({
     );
 
   });
-
+// ------------------------------------------------------------------------------------------------------
   // TEAM 1 BOWLERS
 
   bowlers.forEach((bowler: any) => {
@@ -1141,7 +1566,7 @@ export default function LiveScoringPanel({
     );
 
   });
-
+// ------------------------------------------------------------------------------------------------------
   // TEAM 2 BOWLERS
 
   team2Bowlers.forEach((bowler: any) => {
@@ -1158,7 +1583,7 @@ export default function LiveScoringPanel({
     );
 
   });
-
+// ------------------------------------------------------------------------------------------------------
   // REMOVE DUPLICATES
 
   existingPlayers =
@@ -1188,7 +1613,7 @@ export default function LiveScoringPanel({
             player.team
         )
     );
-
+// ------------------------------------------------------------------------------------------------------
   // AUTO SORT
 
   existingPlayers.sort(
@@ -1210,7 +1635,7 @@ export default function LiveScoringPanel({
 
     }
   );
-
+// ------------------------------------------------------------------------------------------------------
   // SAVE
 
   localStorage.setItem(
@@ -1222,7 +1647,7 @@ export default function LiveScoringPanel({
     )
 
   );
-
+// ------------------------------------------------------------------------------------------------------
   // FORCE LIVE UPDATE
 
   window.dispatchEvent(
@@ -1260,3 +1685,4 @@ export default function LiveScoringPanel({
 );
 
 }
+// ------------------------------------------------------------------------------------------------------
