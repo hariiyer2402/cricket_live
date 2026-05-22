@@ -21,7 +21,10 @@ const FIELD_DEFAULTS = {
   team2Overs: '',
 };
 
-export default function MatchForm({ onAdd }: Props) {
+export default function MatchForm({
+  onAdd,
+  fixtureId,
+}: Props){
 
   const [fields, setFields] =
     useState(FIELD_DEFAULTS);
@@ -177,8 +180,8 @@ export default function MatchForm({ onAdd }: Props) {
 
     const match: MatchResult = {
 
-      id:
-        crypto.randomUUID(),
+id:
+  fixtureId,
 
       team1:
         fields.team1,

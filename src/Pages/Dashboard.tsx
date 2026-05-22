@@ -142,7 +142,7 @@ export default function Dashboard() {
             (fixture: any) => {
 
               if (
-                fixture.id === m.id
+                String(fixture.id) === String(m.id)
               ) {
 
                 updated = true;
@@ -153,14 +153,18 @@ export default function Dashboard() {
                     m.team2Runs
                   );
 
-                const wicketDifference =
-                  Math.floor(
-                    Math.random() * 9
-                  ) + 1;
 
                 const team1Won =
                   m.winner ===
                   m.team1;
+
+                const wicketDifference =
+                  10 -
+                  (
+                    team1Won
+                      ? m.team1Wickets
+                      : m.team2Wickets
+                  );
 
                 return {
 
@@ -463,10 +467,10 @@ export default function Dashboard() {
                   {fixture.team1} vs {fixture.team2}
               
                 </option>
-          
+
               )
             )}
-          
+
           </select>
 
 {/* ---------------------------------------------------------------------------------------------------------------------------- */}
