@@ -6,6 +6,7 @@ import { PlusCircle, AlertCircle } from 'lucide-react';
 
 interface Props {
   onAdd: (match: MatchResult) => void;
+  fixtureId: string;
 }
 
 const FIELD_DEFAULTS = {

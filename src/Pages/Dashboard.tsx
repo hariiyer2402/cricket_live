@@ -139,13 +139,7 @@ export default function Dashboard() {
             (fixture: any) => {
 
               if (
-                !updated &&
-                fixture.team1 ===
-                  m.team1 &&
-                fixture.team2 ===
-                  m.team2 &&
-                fixture.status ===
-                  'Upcoming'
+                fixture.id === m.id
               ) {
 
                 updated = true;
@@ -431,9 +425,12 @@ export default function Dashboard() {
 
                 </h2>
 
-                <MatchForm
-                  onAdd={addMatch}
-                />
+              <MatchForm
+                onAdd={addMatch}
+                fixtureId={
+                  tournament.fixtures[0]?.id || ''
+                }
+              />
 
               </div>
 
