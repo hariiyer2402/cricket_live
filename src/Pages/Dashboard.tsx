@@ -66,6 +66,9 @@ export default function Dashboard() {
       loadMatches
     );
 
+    const [selectedFixtureId, setSelectedFixtureId] =
+  useState('');
+
   // STANDINGS
 
   const [standings, setStandings] =
@@ -424,12 +427,52 @@ export default function Dashboard() {
                   Enter Match Result
 
                 </h2>
+{/* --------------------------------------------------------------------------------------------------------------------- */}
 
+                        <select
+            value={selectedFixtureId}
+            onChange={(e) =>
+              setSelectedFixtureId(
+                e.target.value
+              )
+            }
+            className="
+              w-full
+              bg-[#16263D]
+              border border-[#223554]
+              rounded-xl
+              px-4
+              py-3
+              text-white
+              mb-4
+            "
+          >
+          
+            <option value="">
+              Select Fixture
+            </option>
+          
+            {tournament.fixtures.map(
+              (fixture: any) => (
+              
+                <option
+                  key={fixture.id}
+                  value={fixture.id}
+                >
+                
+                  {fixture.team1} vs {fixture.team2}
+              
+                </option>
+          
+              )
+            )}
+          
+          </select>
+
+{/* ---------------------------------------------------------------------------------------------------------------------------- */}
               <MatchForm
                 onAdd={addMatch}
-                fixtureId={
-                  tournament.fixtures[0]?.id || ''
-                }
+                fixtureId={selectedFixtureId}
               />
 
               </div>
