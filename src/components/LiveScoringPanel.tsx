@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { playerDatabase } from '../playerDatabase';
+
 
 interface Props {
   matchId: string;
@@ -11,6 +13,39 @@ export default function LiveScoringPanel({
   team1,
   team2,
 }: Props) {
+
+const [team1Squad, setTeam1Squad] =
+  useState(
+    playerDatabase[
+      team1 as keyof typeof playerDatabase
+    ]
+  );
+
+const [team2Squad, setTeam2Squad] =
+  useState(
+    playerDatabase[
+      team2 as keyof typeof playerDatabase
+    ]
+  );
+
+const team1Players =
+  team1Squad?.playingXI || [];
+
+const team2Players =
+  team2Squad?.playingXI || [];
+
+const [showTeam1Squad, setShowTeam1Squad] =
+  useState(false);
+
+const [showTeam2Squad, setShowTeam2Squad] =
+  useState(false);
+
+const [selectedPlayer, setSelectedPlayer] =
+  useState<string | null>(null);
+
+const [selectedTeam2Player, setSelectedTeam2Player] =
+  useState<string | null>(null);
+
 // ------------------------------------------------------------------------------------------------------
   // TEAM 1 BATTERS
 
@@ -606,24 +641,158 @@ const addTeam2Batter = () => {
 
         <div className="p-6 border-b border-[#223554]">
 
+        <div className="flex justify-between items-center">
+
           <h2 className="text-2xl font-black text-white">
             {team1} Batting
           </h2>
 
+          <button
+            onClick={() =>
+              setShowTeam1Squad(
+                !showTeam1Squad
+              )
+            }
+            className="
+              bg-cyan-500
+              text-white
+              px-4
+              py-2
+              rounded-xl
+              text-sm
+              font-bold
+            "
+          >
+            Manage Squad
+          </button>
+          
+        </div>
+      {showTeam1Squad && (
+
+  <div className="p-6 border-b border-[#223554]">
+
+    <h3 className="text-white font-bold mb-4">
+      Playing XI
+    </h3>
+
+    <div className="space-y-2">
+
+      {team1Squad?.playingXI.map(
+        (player: string) => (
+
+<div
+  key={player}
+onClick={() =>
+  setSelectedPlayer(player)
+}
+  className={`
+    font-medium
+    cursor-pointer
+    p-2
+    rounded-lg
+    ${
+      selectedPlayer === player
+        ? 'bg-cyan-500 text-white'
+        : 'text-green-400'
+    }
+  `}
+>
+  ✓ {player}
+</div>
+
+        )
+      )}
+
+    </div>
+
+    <h3 className="text-white font-bold mt-6 mb-4">
+      Bench
+    </h3>
+
+    <div className="space-y-2">
+
+      {team1Squad?.bench.map(
+        (player: string) => (
+
+<div
+  key={player}
+  onClick={() => {
+
+    if (!selectedPlayer) return;
+
+    setTeam1Squad((prev: any) => {
+
+      const newPlayingXI =
+        prev.playingXI.map(
+          (p: string) =>
+            p === selectedPlayer
+              ? player
+              : p
+        );
+
+      const newBench =
+        prev.bench.map(
+          (p: string) =>
+            p === player
+              ? selectedPlayer
+              : p
+        );
+
+      return {
+        ...prev,
+        playingXI: newPlayingXI,
+        bench: newBench,
+      };
+
+    });
+
+    setSelectedPlayer(null);
+
+  }}
+
+  className="
+    text-yellow-400
+    font-medium
+    cursor-pointer
+    hover:bg-[#16263D]
+    p-2
+    rounded-lg
+  "
+>
+  ○ {player}
+</div>
+
+        )
+      )}
+
+    </div>
+
+  </div>
+
+)}
         </div>
 
         <div className="p-6 space-y-4">
+<>
+  <input
+    list="team1-players"
+    type="text"
+    placeholder={`${team1} Batter Name`}
+    value={batterName}
+    onChange={(e) =>
+      setBatterName(e.target.value)
+    }
+  />
 
-          <input
-            type="text"
-            placeholder={`${team1} Batter Name`}
-            value={batterName}
-            onChange={(e) =>
-              setBatterName(
-                e.target.value
-              )
-            }
-          />
+  <datalist id="team1-players">
+    {team1Players.map((player) => (
+      <option
+        key={player}
+        value={player}
+      />
+    ))}
+  </datalist>
+</>
 
           <div className="grid grid-cols-2 gap-3">
 
@@ -874,24 +1043,163 @@ const addTeam2Batter = () => {
 
   <div className="p-6 border-b border-[#223554]">
 
-    <h2 className="text-2xl font-black text-white">
-      {team2} Batting
-    </h2>
+<div className="flex justify-between items-center">
+
+  <h2 className="text-2xl font-black text-white">
+    {team2} Batting
+  </h2>
+
+  <button
+    onClick={() =>
+      setShowTeam2Squad(
+        !showTeam2Squad
+      )
+    }
+    className="
+      bg-cyan-500
+      text-white
+      px-4
+      py-2
+      rounded-xl
+      text-sm
+      font-bold
+    "
+  >
+    Manage Squad
+  </button>
+
+</div>
 
   </div>
 
   <div className="p-3 sm:p-6 space-y-4">
 
-    <input
-      type="text"
-      placeholder={`${team2} Batter Name`}
-      value={team2BatterName}
-      onChange={(e) =>
-        setTeam2BatterName(
-          e.target.value
+  {showTeam2Squad && (
+
+  <div className="p-6 border-b border-[#223554]">
+
+    <h3 className="text-white font-bold mb-4">
+      Playing XI
+    </h3>
+
+    <div className="space-y-2">
+
+      {team2Squad?.playingXI.map(
+        (player: string) => (
+
+          <div
+            key={player}
+            onClick={() =>
+              setSelectedTeam2Player(player)
+            }
+            className={`
+              font-medium
+              cursor-pointer
+              p-2
+              rounded-lg
+              ${
+                selectedTeam2Player === player
+                  ? 'bg-cyan-500 text-white'
+                  : 'text-green-400'
+              }
+            `}
+          >
+            ✓ {player}
+          </div>
+
         )
-      }
-    />
+      )}
+
+    </div>
+
+    <h3 className="text-white font-bold mt-6 mb-4">
+      Bench
+    </h3>
+
+    <div className="space-y-2">
+
+      {team2Squad?.bench.map(
+        (player: string) => (
+
+          <div
+            key={player}
+            onClick={() => {
+
+              if (!selectedTeam2Player) return;
+
+              setTeam2Squad((prev: any) => {
+
+                const newPlayingXI =
+                  prev.playingXI.map(
+                    (p: string) =>
+                      p === selectedTeam2Player
+                        ? player
+                        : p
+                  );
+
+                const newBench =
+                  prev.bench.map(
+                    (p: string) =>
+                      p === player
+                        ? selectedTeam2Player
+                        : p
+                  );
+
+                return {
+                  ...prev,
+                  playingXI: newPlayingXI,
+                  bench: newBench,
+                };
+
+              });
+
+              setSelectedTeam2Player(null);
+
+            }}
+
+            className="
+              text-yellow-400
+              font-medium
+              cursor-pointer
+              hover:bg-[#16263D]
+              p-2
+              rounded-lg
+            "
+          >
+            ○ {player}
+          </div>
+
+        )
+      )}
+
+    </div>
+
+  </div>
+
+)}
+
+<>
+  <input
+    list="team2-players"
+    type="text"
+    placeholder={`${team2} Batter Name`}
+    value={team2BatterName}
+    onChange={(e) =>
+      setTeam2BatterName(
+        e.target.value
+      )
+    }
+  />
+
+  <datalist id="team2-players">
+    {team2Players.map((player) => (
+      <option
+        key={player}
+        value={player}
+      />
+    ))}
+  </datalist>
+</>
 
     <div className="grid grid-cols-2 gap-3">
 
@@ -1159,17 +1467,28 @@ const addTeam2Batter = () => {
 
         <div className="p-6 space-y-4">
 
-          <input
-            list="team1-bowlers"
-              type="text"
-              placeholder={`${team1} Bowler Name`}
-              value={bowlerName}
-              onChange={(e) =>
-                setBowlerName(
-                  e.target.value
-                )
-              }
-          />
+<>
+  <input
+    list="team1-bowlers"
+    type="text"
+    placeholder={`${team1} Bowler Name`}
+    value={bowlerName}
+    onChange={(e) =>
+      setBowlerName(
+        e.target.value
+      )
+    }
+  />
+
+  <datalist id="team1-bowlers">
+    {team1Players.map((player) => (
+      <option
+        key={player}
+        value={player}
+      />
+    ))}
+  </datalist>
+</>
 
 <datalist id="team1-bowlers">
 
@@ -1286,18 +1605,28 @@ const addTeam2Batter = () => {
         </div>
 
         <div className="p-6 space-y-4">
+<>
+  <input
+    list="team2-bowlers"
+    type="text"
+    placeholder={`${team2} Bowler Name`}
+    value={team2BowlerName}
+    onChange={(e) =>
+      setTeam2BowlerName(
+        e.target.value
+      )
+    }
+  />
 
-        <input
-            list="team2-bowlers"
-            type="text"
-            placeholder={`${team2} Bowler Name`}
-            value={team2BowlerName}
-            onChange={(e) =>
-              setTeam2BowlerName(
-                e.target.value
-              )
-            }
-        />   
+  <datalist id="team2-bowlers">
+    {team2Players.map((player) => (
+      <option
+        key={player}
+        value={player}
+      />
+    ))}
+  </datalist>
+</>
 
         <datalist id="team2-bowlers">
         
