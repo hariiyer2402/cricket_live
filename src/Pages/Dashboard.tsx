@@ -20,6 +20,9 @@ import {
 const LS_MATCHES =
   'ipl_cricket_matches_v1';
 
+const LS_TOURNAMENTS =
+  'saved_tournaments';
+
 function loadMatches(): MatchResult[] {
 
   try {
@@ -100,102 +103,154 @@ export default function Dashboard() {
       JSON.stringify(tournament)
     );
 
-    if (tournament) {
+  if (tournament) {
 
-      setStandings(
-        rebuildStandings(
-          matches,
-          tournament?.teams
-        )
+    const updatedStandings =
+      rebuildStandings(
+        matches,
+        tournament.teams
       );
 
-    }
+    setStandings(updatedStandings);
+
+    saveTournament(
+      tournament,
+      matches,
+      updatedStandings
+    );
+
+  }
 
   }, [
     matches,
     tournament,
   ]);
 
-  // ADD MATCH RESULT
+// SAVE TOURNAMENT
 
-  const addMatch = (
-    m: MatchResult
-  ) => {
+const saveTournament = (
+  tournamentData: any,
+  matchesData: MatchResult[],
+  standingsData: TeamStats[]
+) => {
 
-    setMatches(prev => [
-      ...prev,
-      m,
-    ]);
+  if (!tournamentData) return;
 
-    setTournament((prev: any) => {
+  const saved = JSON.parse(
+    localStorage.getItem(LS_TOURNAMENTS) || '[]'
+  );
 
-      if (!prev) return prev;
+  const existingIndex = saved.findIndex(
+    (t: any) => t.id === tournamentData.id
+  );
 
-      let updated = false;
+  const tournamentToSave = {
+    id:
+      tournamentData.id ||
+      crypto.randomUUID(),
 
-      return {
+    name:
+      tournamentData.name,
 
-        ...prev,
+    createdAt:
+      tournamentData.createdAt ||
+      new Date().toISOString(),
 
-        fixtures:
-          prev.fixtures.map(
-            (fixture: any) => {
+    status:
+      tournamentData.fixtures.every(
+        (f: any) => f.status === 'Completed'
+      )
+        ? 'Completed'
+        : 'In Progress',
 
-              if (
-                String(fixture.id) === String(m.id)
-              ) {
-
-                updated = true;
-
-                const runDifference =
-                  Math.abs(
-                    m.team1Runs -
-                    m.team2Runs
-                  );
-
-
-                const team1Won =
-                  m.winner ===
-                  m.team1;
-
-                const wicketDifference =
-                  10 -
-                  (
-                    team1Won
-                      ? m.team1Wickets
-                      : m.team2Wickets
-                  );
-
-                return {
-
-                  ...fixture,
-
-                  status:
-                    'Completed',
-
-                  winner:
-                    m.winner,
-
-                  result:
-                    team1Won
-                      ? `${m.winner} won by ${runDifference} runs`
-                      : `${m.winner} won by ${wicketDifference} wickets`,
-
-                };
-
-              }
-
-              return fixture;
-
-            }
-          ),
-
-      };
-
-    });
-
+    tournament: tournamentData,
+    matches: matchesData,
+    standings: standingsData,
   };
 
+  if (existingIndex >= 0) {
+    saved[existingIndex] = tournamentToSave;
+  } else {
+    saved.push(tournamentToSave);
+  }
+
+  localStorage.setItem(
+    LS_TOURNAMENTS,
+    JSON.stringify(saved)
+  );
+};
+
+// ADD MATCH RESULT
+
+const addMatch = (
+  m: MatchResult
+) => {
+
+  setMatches(prev => [
+    ...prev,
+    m,
+  ]);
+
+  setTournament((prev: any) => {
+
+    if (!prev) return prev;
+
+    return {
+
+      ...prev,
+
+      fixtures:
+        prev.fixtures.map(
+          (fixture: any) => {
+
+            if (
+              String(fixture.id) === String(m.id)
+            ) {
+
+              const runDifference =
+                Math.abs(
+                  m.team1Runs -
+                  m.team2Runs
+                );
+
+              const team1Won =
+                m.winner ===
+                m.team1;
+
+              const wicketDifference =
+                10 -
+                (
+                  team1Won
+                    ? m.team1Wickets
+                    : m.team2Wickets
+                );
+
+              return {
+
+                ...fixture,
+
+                status: 'Completed',
+
+                winner: m.winner,
+
+                result: team1Won
+                  ? `${m.winner} won by ${runDifference} runs`
+                  : `${m.winner} won by ${wicketDifference} wickets`,
+
+              };
+
+            }
+
+            return fixture;
+
+          }
+        ),
+
+    };
+
+  });
+
+};
   // RESET TOURNAMENT
 
   const resetTournament = () => {
@@ -270,6 +325,21 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
 
           <div className="flex items-center gap-3">
+
+            <button
+  onClick={() => {
+    console.log(
+      JSON.parse(
+        localStorage.getItem(
+          LS_TOURNAMENTS
+        ) || '[]'
+      )
+    );
+  }}
+  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#223554] text-xs font-semibold bg-[#111C30] text-white hover:border-cyan-400"
+>
+  Saved Tournaments
+</button>
 
             <div className="bg-gradient-to-r from-[#00C2FF] to-[#0095C4] rounded-xl p-2 shadow-lg shadow-cyan-500/20">
 
