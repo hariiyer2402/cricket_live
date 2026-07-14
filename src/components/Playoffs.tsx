@@ -1,13 +1,15 @@
 import { TeamStats } from '../types';
 
 interface Props {
-standings: TeamStats[];
-fixtures?: any[];
+  standings: TeamStats[];
+  fixtures?: any[];
+  onSelectPlayoff?: (match: any) => void;
 }
 
 export default function Playoffs({
-standings,
-fixtures = [],
+  standings,
+  fixtures = [],
+  onSelectPlayoff,
 }: Props) {
 
 // SHOW PLAYOFFS ONLY FOR 8+ TEAM TOURNAMENTS
@@ -117,7 +119,18 @@ return (
 
       {/* QUALIFIER 1 */}
 
-      <div className="bg-[#16263D] border border-[#223554] rounded-3xl p-6">
+      <div
+         onClick={() =>
+          onSelectPlayoff?.({
+      id: 'Q1',
+      stage: 'Qualifier 1',
+      team1: top4[0]?.id,
+      team2: top4[1]?.id,
+      status: 'Upcoming',
+    })
+  }
+  className="bg-[#16263D] border border-[#223554] rounded-3xl p-6 cursor-pointer hover:border-cyan-400 transition-all"
+>
 
         <h3 className="text-cyan-400 text-lg font-black mb-6">
           QUALIFIER 1

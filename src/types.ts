@@ -32,3 +32,13 @@ export interface MatchResult {
 
   date: string;
 }
+
+export interface PlayoffMatch {
+  id: string;
+  stage: 'Qualifier 1' | 'Eliminator' | 'Qualifier 2' | 'Final';
+  team1: string;
+  team2: string;
+  status: 'Upcoming' | 'Completed';
+  winner?: string;
+  result?: string;
+}

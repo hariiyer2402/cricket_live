@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 
-import { MatchResult, TeamStats } from '../types';
+import {
+  MatchResult,
+  TeamStats,
+  PlayoffMatch,
+} from '../types';
 import { rebuildStandings } from '../utils';
 
 import Fixtures from '../components/Fixtures';
@@ -72,6 +76,9 @@ export default function Dashboard() {
     const [selectedFixtureId, setSelectedFixtureId] =
   useState('');
 
+  const [selectedPlayoff, setSelectedPlayoff] =
+  useState<PlayoffMatch | null>(null);
+
   // STANDINGS
 
   const [standings, setStandings] =
@@ -113,10 +120,7 @@ if (tournament) {
 
   setStandings(updatedStandings);
 
-  generatePlayoffs(
-    tournament,
-    updatedStandings
-  );
+
 
   saveTournament(
     tournament,
@@ -131,85 +135,7 @@ if (tournament) {
     tournament,
   ]);
 // ---------------------------------------------------------------------------------------------------------------
-const generatePlayoffs = (
-  tournamentData: any,
-  standingsData: TeamStats[]
-) => {
 
-  if (!tournamentData) return;
-
-  // Only for 8+ team tournaments
-  if (tournamentData.teams.length < 8) return;
-
-  // League matches only
-  const leagueFixtures =
-    tournamentData.fixtures.filter(
-      (f: any) =>
-        !f.stage
-    );
-
-  // League not finished yet
-  if (
-    !leagueFixtures.every(
-      (f: any) =>
-        f.status === 'Completed'
-    )
-  ) {
-    return;
-  }
-
-  // Already generated?
-  if (
-    tournamentData.fixtures.some(
-      (f: any) =>
-        f.stage === 'Qualifier 1'
-    )
-  ) {
-    return;
-  }
-
-  // Top 4 teams
-  const top4 =
-    [...standingsData]
-      .sort(
-        (a, b) =>
-          b.points - a.points ||
-          b.nrr - a.nrr
-      )
-      .slice(0, 4);
-
-  const playoffFixtures = [
-
-    {
-      id: 'Q1',
-      stage: 'Qualifier 1',
-      team1: top4[0].id,
-      team2: top4[1].id,
-      status: 'Upcoming',
-    },
-
-    {
-      id: 'EL',
-      stage: 'Eliminator',
-      team1: top4[2].id,
-      team2: top4[3].id,
-      status: 'Upcoming',
-    },
-
-  ];
-
-  setTournament((prev: any) => ({
-
-    ...prev,
-
-    fixtures: [
-      ...prev.fixtures,
-      ...playoffFixtures,
-    ],
-
-  }));
-
-};
 
 // SAVE TOURNAMENT
 
@@ -631,10 +557,14 @@ const addMatch = (
           </select>
 
 {/* ---------------------------------------------------------------------------------------------------------------------------- */}
-              <MatchForm
-                onAdd={addMatch}
-                fixtureId={selectedFixtureId}
-              />
+          <MatchForm
+            onAdd={addMatch}
+            fixtureId={
+              selectedPlayoff
+                ? selectedPlayoff.id
+                : selectedFixtureId
+            }
+          />
 
               </div>
 
@@ -736,12 +666,9 @@ const addMatch = (
             {tournament && (
 
               <Playoffs
-                standings={
-                  standings
-                }
-                fixtures={
-                  tournament.fixtures
-                }
+                standings={standings}
+                fixtures={tournament.fixtures}
+                onSelectPlayoff={setSelectedPlayoff}
               />
 
             )}
