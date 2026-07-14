@@ -103,28 +103,113 @@ export default function Dashboard() {
       JSON.stringify(tournament)
     );
 
-  if (tournament) {
+if (tournament) {
 
-    const updatedStandings =
-      rebuildStandings(
-        matches,
-        tournament.teams
-      );
-
-    setStandings(updatedStandings);
-
-    saveTournament(
-      tournament,
+  const updatedStandings =
+    rebuildStandings(
       matches,
-      updatedStandings
+      tournament.teams
     );
 
-  }
+  setStandings(updatedStandings);
+
+  generatePlayoffs(
+    tournament,
+    updatedStandings
+  );
+
+  saveTournament(
+    tournament,
+    matches,
+    updatedStandings
+  );
+
+}
 
   }, [
     matches,
     tournament,
   ]);
+// ---------------------------------------------------------------------------------------------------------------
+const generatePlayoffs = (
+  tournamentData: any,
+  standingsData: TeamStats[]
+) => {
+
+  if (!tournamentData) return;
+
+  // Only for 8+ team tournaments
+  if (tournamentData.teams.length < 8) return;
+
+  // League matches only
+  const leagueFixtures =
+    tournamentData.fixtures.filter(
+      (f: any) =>
+        !f.stage
+    );
+
+  // League not finished yet
+  if (
+    !leagueFixtures.every(
+      (f: any) =>
+        f.status === 'Completed'
+    )
+  ) {
+    return;
+  }
+
+  // Already generated?
+  if (
+    tournamentData.fixtures.some(
+      (f: any) =>
+        f.stage === 'Qualifier 1'
+    )
+  ) {
+    return;
+  }
+
+  // Top 4 teams
+  const top4 =
+    [...standingsData]
+      .sort(
+        (a, b) =>
+          b.points - a.points ||
+          b.nrr - a.nrr
+      )
+      .slice(0, 4);
+
+  const playoffFixtures = [
+
+    {
+      id: 'Q1',
+      stage: 'Qualifier 1',
+      team1: top4[0].id,
+      team2: top4[1].id,
+      status: 'Upcoming',
+    },
+
+    {
+      id: 'EL',
+      stage: 'Eliminator',
+      team1: top4[2].id,
+      team2: top4[3].id,
+      status: 'Upcoming',
+    },
+
+  ];
+
+  setTournament((prev: any) => ({
+
+    ...prev,
+
+    fixtures: [
+      ...prev.fixtures,
+      ...playoffFixtures,
+    ],
+
+  }));
+
+};
 
 // SAVE TOURNAMENT
 
@@ -534,7 +619,9 @@ const addMatch = (
                   value={fixture.id}
                 >
                 
-                  {fixture.team1} vs {fixture.team2}
+                  {fixture.stage
+                    ? `${fixture.stage} - ${fixture.team1} vs ${fixture.team2}`
+                    : `${fixture.team1} vs ${fixture.team2}`}
               
                 </option>
 
