@@ -20,13 +20,18 @@ return null;
 
 // CHECK IF LEAGUE MATCHES COMPLETED
 
-const allCompleted =
-fixtures.length > 0 &&
-fixtures.every(
-(match) =>
-match.status === 'Completed'
-);
+const leagueFixtures =
+  fixtures.filter(
+    (match: any) =>
+      !match.stage
+  );
 
+const allCompleted =
+  leagueFixtures.length > 0 &&
+  leagueFixtures.every(
+    (match: any) =>
+      match.status === 'Completed'
+  );
 // SORT TEAMS
 
 const sortedTeams =
