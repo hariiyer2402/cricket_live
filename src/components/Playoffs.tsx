@@ -169,7 +169,18 @@ return (
 
       {/* ELIMINATOR */}
 
-      <div className="bg-[#16263D] border border-[#223554] rounded-3xl p-6">
+      <div
+  onClick={() =>
+    onSelectPlayoff?.({
+      id: 'EL',
+      stage: 'Eliminator',
+      team1: top4[2]?.id,
+      team2: top4[3]?.id,
+      status: 'Upcoming',
+    })
+  }
+  className="bg-[#16263D] border border-[#223554] rounded-3xl p-6 cursor-pointer hover:border-red-400 transition-all"
+>
 
         <h3 className="text-red-400 text-lg font-black mb-6">
           ELIMINATOR
@@ -218,7 +229,7 @@ return (
           <div className="bg-[#111C30] rounded-2xl p-5 text-center">
 
             <span className="text-white font-black text-lg">
-              Loser Q1
+              {fixtures.find((m: any) => m.id === 'Q2')?.team1 || 'Loser Q1'}
             </span>
 
           </div>
@@ -230,7 +241,7 @@ return (
           <div className="bg-[#111C30] rounded-2xl p-5 text-center">
 
             <span className="text-white font-black text-lg">
-              Winner Eliminator
+              {fixtures.find((m: any) => m.id === 'Q2')?.team2 || 'Winner Eliminator'}
             </span>
 
           </div>

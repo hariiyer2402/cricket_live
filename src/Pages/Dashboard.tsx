@@ -206,12 +206,86 @@ const addMatch = (
 
     if (!prev) return prev;
 
+                  let fixtures = [...prev.fixtures];
+
+                if (m.id === 'Q1') {
+                
+                  const loser =
+                    m.winner === m.team1
+                      ? m.team2
+                      : m.team1;
+                
+                  fixtures.push({
+                    id: 'Q2',
+                    stage: 'Qualifier 2',
+                    team1: loser,
+                    team2: 'Winner Eliminator',
+                    status: 'Upcoming',
+                  });
+                
+                  fixtures.push({
+                    id: 'F',
+                    stage: 'Final',
+                    team1: m.winner,
+                    team2: 'Winner Q2',
+                    status: 'Upcoming',
+                  });
+                
+                }
+
+                if (m.id === 'EL') {
+
+          fixtures = fixtures.map((f: any) => {
+          
+            if (f.id === 'Q2') {
+            
+              return {
+                ...f,
+                team2: m.winner,
+              };
+            
+            }
+          
+            return f;
+          
+          });
+        
+        }
+        
+        if (m.id === 'Q2') {
+        
+          fixtures = fixtures.map((f: any) => {
+          
+            if (f.id === 'F') {
+            
+              return {
+                ...f,
+                team2: m.winner,
+              };
+            
+            }
+          
+            return f;
+          
+          });
+        
+        }
+        
+        if (m.id === 'F') {
+        
+          localStorage.setItem(
+            'champion',
+            m.winner
+          );
+        
+        }
+
     return {
 
       ...prev,
 
-      fixtures:
-        prev.fixtures.map(
+        fixtures:
+          fixtures.map(
           (fixture: any) => {
 
             if (
